@@ -1,0 +1,18 @@
+services:
+  datapusher:
+    image: keitaro/ckan-datapusher:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8800"  # Menghubungkan port 8000 (luar) ke 8800 (dalam)
+    networks:
+      - backend
+      - frontend
+    extra_hosts:
+      - "localhost:host-gateway"
+    env_file:
+      - ${PWD}/config/ckan/.env
+    environment:
+      - DATAPUSHER_HOST=0.0.0.0
+      - DATAPUSHER_PORT=8800
+      - REWRITE_RESOURCES=True
+      - REWRITE_URL=http://ckan-ckan-1:5000
