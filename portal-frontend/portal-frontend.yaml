@@ -1,0 +1,14 @@
+services:
+
+  portal-frontend:
+    build:
+      context: ${PWD}/portal-frontend
+    container_name: portal-frontend
+    ports:
+      - "3000:5173"
+    volumes:
+      - ${PWD}/portal-frontend:/app
+    networks:
+      - frontend
+    depends_on:
+      - portal-api

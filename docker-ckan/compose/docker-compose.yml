@@ -44,6 +44,12 @@ include:
       - config/.global-env
     project_directory: .
 
+  - path: services/portal-api/portal-api.yaml
+    project_directory: .
+
+  - path: services/portal-frontend/portal-frontend.yaml
+    project_directory: .
+
 networks:
   frontend:
   backend:

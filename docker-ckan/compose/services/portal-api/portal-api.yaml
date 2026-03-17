@@ -1,0 +1,10 @@
+services:
+  portal-api:
+    build: ../../portal-api
+    container_name: portal-api
+    ports:
+      - "8081:80"
+    volumes:
+      - ../../portal-api:/var/www/html
+    networks:
+      - frontend

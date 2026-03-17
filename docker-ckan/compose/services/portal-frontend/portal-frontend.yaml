@@ -1,0 +1,13 @@
+services:
+  portal-frontend:
+    build:
+      context: ../../portal-frontend
+    container_name: portal-frontend
+    working_dir: /app
+    ports:
+      - "3000:5173"
+    volumes:
+      - ../../portal-frontend:/app
+    command: npm run dev -- --host
+    networks:
+      - frontend
