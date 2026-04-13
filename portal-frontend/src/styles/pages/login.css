@@ -1,0 +1,29 @@
+.login-page {
+  min-height: calc(100svh - 220px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: min(460px, 100%);
+  background: #fff;
+  border: 1px solid #dbe5ef;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+.login-card__title {
+  margin: 0 0 18px;
+  font-size: 1.6rem;
+}
+
+.login-card .form-control {
+  margin-bottom: 12px;
+}
+
+.login-card .btn {
+  width: 100%;
+  min-height: 48px;
+}

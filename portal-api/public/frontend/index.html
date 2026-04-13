@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="id" translate="yes">
+    <head>
+        <!-- Menentukan format karakter agar teks Indonesia dan simbol tampil dengan benar -->
+        <meta charset="utf-8">
+        <!-- Memaksa browser lama seperti Internet Explorer memakai mode render terbaru -->
+        <meta http-equiv="x-ua-Compatible" content="IE=edge">
+        <!-- Membuat tampilan responsif agar layout menyesuaikan lebar perangkat -->
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <!-- Ikon kecil yang tampil pada tab browser -->
+        <link rel="icon" href="/frontend/favicon.ico">
+        <!-- Library ikon Font Awesome untuk kebutuhan ikon pada antarmuka -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <!-- Judul halaman yang muncul di tab browser -->
+        <title>satudata_tangerang</title>
+
+        <!-- Script ini dipakai untuk menonaktifkan console browser saat website berjalan di domain production -->
+        <script>
+            (function() {
+                'use strict';
+                // Mengecek apakah website sedang dibuka di domain production
+                var hostname = window.location.hostname;
+                var isProduction = hostname === 'satudata.tangerang.go.id' || hostname === 'www.satudata.tangerang.go.id' || hostname === 'satudata.jakarta.go.id' || hostname === 'www.satudata.jakarta.go.id' || (hostname !== 'localhost' && hostname !== '127.0.0.1' && !hostname.startsWith('192.168.') && !hostname.startsWith('10.') && !hostname.includes('local'));
+
+                // Jika production, semua method console akan dibungkam agar log tidak terlihat di browser publik
+                if (isProduction) {
+                    // Fungsi kosong pengganti console.log, console.error, dan method lainnya
+                    var noop = function() {};
+                    // Daftar method console yang ingin dimatikan
+                    var methods = ['log', 'debug', 'info', 'warn', 'error', 'trace', 'group', 'groupEnd', 'groupCollapsed', 'table', 'time', 'timeEnd', 'timeLog', 'dir', 'dirxml', 'assert', 'count', 'countReset', 'clear', 'profile', 'profileEnd'];
+
+                    // Menyimpan console asli untuk kebutuhan debug darurat bila suatu saat diperlukan
+                    if (!window._originalConsole) {
+                        window._originalConsole = {};
+                        methods.forEach(function(method) {
+                            try {
+                                window._originalConsole[method] = console[method];
+                            } catch (e) {}
+                        });
+                    }
+
+                    // Mengganti semua method console dengan fungsi kosong sejak awal
+                    methods.forEach(function(method) {
+                        try {
+                            console[method] = noop;
+                        } catch (e) {}
+                    });
+
+                    // Mencoba mengunci method console supaya tidak mudah dioverride ulang oleh script lain
+                    methods.forEach(function(method) {
+                        try {
+                            Object.defineProperty(console, method, {
+                                value: noop,
+                                writable: true,
+                                configurable: true,
+                                enumerable: false
+                            });
+                        } catch (e) {
+                            try {
+                                console[method] = noop;
+                            } catch (e2) {}
+                        }
+                    });
+
+                    // Fungsi bantu untuk memastikan script yang dimuat belakangan juga tetap tidak bisa menulis ke console
+                    var overrideConsole = function() {
+                        methods.forEach(function(method) {
+                            try {
+                                if (typeof console[method] === 'function') {
+                                    console[method] = function() {
+                                        return;
+                                    };
+                                } else {
+                                    console[method] = noop;
+                                }
+                            } catch (e) {}
+                        });
+                    };
+
+                    // Menjalankan override saat itu juga
+                    overrideConsole();
+
+                    // Mengulang override secara berkala untuk mengantisipasi library yang mencoba mengaktifkan console lagi
+                    setInterval(overrideConsole, 100);
+
+                    // Proxy ini dipakai sebagai lapisan tambahan agar akses ke console tetap diarahkan ke fungsi kosong
+                    try {
+                        var consoleProxy = new Proxy(console,{
+                            set: function(target, property, value) {
+                                if (methods.indexOf(property) !== -1) {
+                                    target[property] = noop;
+                                    return true;
+                                }
+                                target[property] = value;
+                                return true;
+                            },
+                            get: function(target, property) {
+                                if (methods.indexOf(property) !== -1) {
+                                    return noop;
+                                }
+                                return target[property];
+                            }
+                        });
+                        try {
+                            Object.defineProperty(window, 'console', {
+                                value: consoleProxy,
+                                writable: true,
+                                configurable: true
+                            });
+                        } catch (e) {}
+                    } catch (e) {}
+                }
+            })();
+        </script>
+
+        <!-- Script ini memuat Google Translate agar halaman bisa diterjemahkan, kecuali saat prerender -->
+        <script>
+            // Mencegah script berjalan pada environment prerender
+            if (typeof window !== 'undefined' && !window.__PRERENDER_INJECTED) {
+                // Callback inisialisasi widget translate setelah script Google selesai dimuat
+                window.googleTranslateElementInit = function() {
+                    new google.translate.TranslateElement({
+                        // Bahasa asli halaman adalah Bahasa Indonesia
+                        pageLanguage: 'id',
+                        // Bahasa terjemahan yang disediakan pada portal
+                        includedLanguages: 'id,en,ar,zh-CN,ja',
+                        // Menggunakan tampilan widget translate yang sederhana
+                        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                        // Mencegah popup translate tampil otomatis
+                        autoDisplay: false
+                    }, 'google_translate_element');
+                };
+                // Membuat elemen script secara dinamis untuk memuat library Google Translate
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+            }
+        </script>
+
+        <!-- Script ini memasang Google Tag Manager untuk kebutuhan tracking dan manajemen tag -->
+        <script>
+            // Mencegah script berjalan pada environment prerender
+            if (typeof window !== 'undefined' && !window.__PRERENDER_INJECTED) {
+                (function(w, d, s, l, i) {
+                    // Menyiapkan dataLayer sebagai penampung event tracking
+                    w[l] = w[l] || [];
+                    w[l].push({
+                        // Mencatat waktu awal GTM dijalankan
+                        'gtm.start': new Date().getTime(),
+                        event: 'gtm.js'
+                    });
+                    // Membuat tag script GTM dan menyisipkannya ke halaman
+                    var f = d.getElementsByTagName(s)[0],
+                        j = d.createElement(s),
+                        dl = l != 'dataLayer' ? '&l=' + l : '';
+                    j.async = true;
+                    j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                    f.parentNode.insertBefore(j, f);
+                })(window, document, 'script', 'dataLayer', 'GTM-KB8M88GD');
+            }
+        </script>
+
+        <!-- Script ini memasang Google Analytics 4 untuk analisis pengunjung website -->
+        <script>
+            // Mencegah script berjalan pada environment prerender
+            if (typeof window !== 'undefined' && !window.__PRERENDER_INJECTED) {
+                // Memuat library gtag milik Google Analytics
+                var script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://www.googletagmanager.com/gtag/js?id=G-9LVDVR9NCM';
+                document.head.appendChild(script);
+
+                // Menyiapkan dataLayer sebagai penampung event analytics
+                window.dataLayer = window.dataLayer || [];
+                // Fungsi helper untuk mengirim event ke Google Analytics
+                function gtag(){dataLayer.push(arguments);}
+                // Menandai waktu awal inisialisasi analytics
+                gtag('js', new Date());
+                // Menghubungkan halaman dengan properti GA4 yang dipakai
+                gtag('config', 'G-9LVDVR9NCM');
+            }
+        </script>
+
+        <!-- Script ini memuat ContentSquare secara lambat agar tidak mengganggu performa awal halaman -->
+        <script>
+            // Mencegah script berjalan pada environment prerender
+            if (typeof window !== 'undefined' && !window.__PRERENDER_INJECTED) {
+                // Menunggu seluruh halaman selesai dimuat terlebih dahulu
+                window.addEventListener('load', function() {
+                    // Menunda pemuatan ContentSquare selama 2 detik agar prioritas awal tetap ke konten utama
+                    setTimeout(function() {
+                        var contentsquareScript = document.createElement('script');
+                        contentsquareScript.src = 'https://t.contentsquare.net/uxa/b860cfd96bcb2.js';
+                        contentsquareScript.async = true;
+                        contentsquareScript.defer = true;
+                        contentsquareScript.setAttribute('data-cs-loaded', 'true');
+                        document.head.appendChild(contentsquareScript);
+                    }, 2000);
+                });
+            }
+        </script>
+
+        <!-- Kata kunci untuk membantu optimasi mesin pencari -->
+        <meta name="keywords" content="data tangerang, statistik tangerang, open data, satudata, portal data terbuka, kota tangerang, statistik tangerang, data statistik tangerang, download data tangerang, unduh data tangerang, tabel data tangerang, pemkot tangerang, diskominfotik tangerang, data terbuka tangerang, visualisasi data tangerang, dashboard statistik tangerang">
+        <!-- Deskripsi halaman yang bisa tampil di hasil pencarian -->
+        <meta name="description" content="Portal Satudata Tangerang - Akses data terbuka Kota Tangerang. Statistik, visualisasi, dan dataset lengkap untuk penelitian dan pengembangan Kota Tangerang. Download data dalam berbagai format.">
+        <!-- Menunjukkan instansi pengelola atau pembuat halaman -->
+        <meta name="author" content="Dinas Komunikasi dan Informatika Kota Tangerang">
+        <!-- Mengizinkan mesin pencari mengindeks halaman dan mengikuti tautan di dalamnya -->
+        <meta name="robots" content="index, follow">
+        <!-- Instruksi khusus untuk Googlebot -->
+        <meta name="googlebot" content="index, follow">
+
+        <!-- Open Graph dipakai agar tampilan link lebih baik saat dibagikan ke media sosial -->
+        <meta property="og:title" content="Portal Satudata Tangerang - Data Terbuka Kota Tangerang">
+        <meta property="og:description" content="Portal Satudata Tangerang menyediakan data dalam format yang mudah dicari, diakses dan digunakan kembali. Akses statistik, visualisasi, dan dataset lengkap Kota Tangerang.">
+        <meta property="og:url" content="https://satudata.tangerang.go.id">
+        <meta property="og:image" content="https://satudata.tangerang.go.id/favicon.ico">
+        <meta property="og:image:alt" content="Portal Satudata Tangerang">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="Satudata Tangerang">
+        <meta property="og:locale" content="id_ID">
+
+        <!-- Meta Twitter/X dipakai untuk mengatur preview saat link dibagikan ke platform tersebut -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Portal Satudata Tangerang - Data Terbuka Kota Tangerang">
+        <meta name="twitter:description" content="Akses data terbuka Kota Tangerang. Statistik, visualisasi, dan dataset lengkap untuk penelitian dan pengembangan Kota Tangerang.">
+        <meta name="twitter:image" content="https://satudata.tangerang.go.id/favicon.ico">
+        <meta name="twitter:site" content="@satudatatangerang">
+        <meta name="twitter:creator" content="@satudatatangerang">
+
+        <!-- URL utama halaman untuk menghindari duplikasi versi URL di mesin pencari -->
+        <link rel="canonical" href="https://satudata.tangerang.go.id">
+
+        <!-- Warna tema browser dan identitas aplikasi web saat dibuka di perangkat mobile/desktop tertentu -->
+        <meta name="theme-color" content="#1e40af">
+        <meta name="msapplication-TileColor" content="#1e40af">
+        <meta name="application-name" content="Satudata Tangerang">
+        <meta name="apple-mobile-web-app-title" content="Satudata Tangerang">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <!-- Saat build production, Vite dapat menyisipkan file CSS dan JS hasil bundling pada area ini -->
+      <script type="module" crossorigin src="/frontend/js/index.Db9ZWBJK.js"></script>
+      <link rel="modulepreload" crossorigin href="/frontend/js/rolldown-runtime.DdFpO1XQ.js">
+      <link rel="modulepreload" crossorigin href="/frontend/js/vendors.C9OQu3Fd.js">
+      <link rel="stylesheet" crossorigin href="/frontend/css/vendors.CqLr8KVv.css">
+      <link rel="stylesheet" crossorigin href="/frontend/css/index.DPamefOD.css">
+    </head>
+    <body>
+        <!-- Pesan fallback yang tampil jika JavaScript dimatikan di browser -->
+        <noscript>
+            <strong>Satu Data Tangerang menyediakan data dalam format yang mudah dicari, diakses dan digunakan kembali. Publik pengguna portal dapat memanfaatkan data yang telah tersedia, serta menciptakan inovasi dan peran serta dalam membangun Kota Tangerang.</strong>
+        </noscript>
+
+        <!-- Elemen root adalah tempat seluruh aplikasi React dirender -->
+        <div id="root"></div>
+        <!-- File entry utama Vite/React yang akan menjalankan aplikasi frontend -->
+    </body>
+</html>

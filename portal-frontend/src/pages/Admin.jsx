@@ -1,5 +1,6 @@
 import axios from "axios"
 import { useEffect, useMemo, useState } from "react"
+import API_BASE_URL from "../utils/api"
 import {
   getDatasetKey,
   mergeDatasetsWithSettings,
@@ -28,7 +29,7 @@ function Admin(){
     setLoading(true)
     setError("")
 
-    axios.get("http://localhost:8081/api/datasets")
+    axios.get(`${API_BASE_URL}/api/datasets`)
       .then((res) => {
         const results = res.data.result.results || []
         const merged = mergeDatasetsWithSettings(results)

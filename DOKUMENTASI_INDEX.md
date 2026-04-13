@@ -10,7 +10,7 @@ Berikut adalah panduan lengkap semua dokumentasi yang sudah disiapkan untuk kamu
 **📌 Fungsi:** Penjelasan lengkap sistem + alignment dengan requirement  
 **📄 Isi:**
 - Gambaran umum sistem (Unified Data Portal)
-- Arsitektur 4-layer (Frontend, Backend, Data Platform, Infrastructure)
+- Arsitektur 4-layer dengan React.js + Bootstrap di frontend, CodeIgniter 4 sebagai renderer HTML dan backend JWT, CKAN sebagai data platform, dan Docker sebagai container platform
 - Flow penggunaan sistem (skenario browsing dan admin)
 - Tabel checklist alignment requirement ✅ 100%
 - Kesimpulan & statement profesional
@@ -49,7 +49,7 @@ Berikut adalah panduan lengkap semua dokumentasi yang sudah disiapkan untuk kamu
 **💡 Tips:**
 - Copy Diagram 1-3 untuk presentasi slides
 - Use Diagram 5 sebagai API reference
-- Diagram 6 menunjukkan Bootstrap usage (penting untuk alignment)
+- Diagram 6 menunjukkan peran Bootstrap dan CodeIgniter 4 dalam alignment requirement
 
 ---
 
@@ -239,8 +239,8 @@ Semua dokumen tersimpan di `/root/baru/` dengan nama:
 └── DOKUMENTASI_INDEX.md (file ini)
 
 Original project files:
-├── portal-api/                    (CodeIgniter backend)
-├── portal-frontend/               (React frontend)
+├── portal-api/                    (CodeIgniter 4 renderer + JWT backend)
+├── portal-frontend/               (React frontend source dan hasil build statis)
 └── docker-ckan/                   (CKAN setup)
 ```
 

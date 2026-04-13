@@ -1,5 +1,7 @@
 services:
   portal-frontend:
+    profiles:
+      - dev-frontend
     build:
       context: ../../portal-frontend
     container_name: portal-frontend

@@ -15,11 +15,12 @@ Portal Manajemen Data Terpadu yang memungkinkan masyarakat dan organisasi untuk 
 - **Admin:** Kelola dataset dan metadata
 
 ### Tech Stack?
-- **Frontend:** React.js + Bootstrap (modern UI)
-- **Backend:** CodeIgniter 4 + JWT (secure API)
+- **Frontend:** React.js + CodeIgniter 4 + Bootstrap
+- **Backend:** CodeIgniter 4 + JWT untuk mengambil API dari CKAN
 - **Data Platform:** CKAN (industry standard catalog)
 - **Database:** PostgreSQL (reliable, scalable)
-- **Infrastructure:** Docker (easy deployment)
+- **Container:** Docker (easy deployment)
+- **Runtime:** CodeIgniter 4 menyajikan halaman HTML dan frontend React hasil build ke browser
 
 ---
 
@@ -27,14 +28,14 @@ Portal Manajemen Data Terpadu yang memungkinkan masyarakat dan organisasi untuk 
 
 | Requirement | Status | Implementation |
 |---|---|---|
-| React.js Frontend | ✅ 100% | React 19 dengan routing & state management |
-| Bootstrap Styling | ✅ 100% | Bootstrap 5.3.8 untuk responsive design |
-| CodeIgniter Backend | ✅ 100% | CI4 API server + HTML rendering |
+| React.js Frontend | ✅ 100% | React 19 untuk komponen dan interaktivitas UI |
+| Bootstrap Styling | ✅ 100% | Bootstrap 5.3.8 untuk warna, tombol, dan layout |
+| CodeIgniter Renderer | ✅ 100% | CI4 merender HTML ke browser |
 | JWT Authentication | ✅ 100% | Firebase JWT dengan token expiry |
 | CKAN Integration | ✅ 100% | Full API proxy & data management |
 | PostgreSQL | ✅ 100% | Database untuk CKAN metadata |
 | Docker | ✅ 100% | Multi-service Docker Compose |
-| NodeJS/Vite | ✅ 100% | Asset bundler & dependency management |
+| Runtime CI4 | ✅ 100% | Frontend production disajikan oleh CodeIgniter 4 |
 
 **CONCLUSION:** 🎉 **100% ALIGNED DENGAN REQUIREMENT**
 
@@ -45,15 +46,16 @@ Portal Manajemen Data Terpadu yang memungkinkan masyarakat dan organisasi untuk 
 ```
 ┌─────────────────────────────────────────────────────┐
 │ LAYER 1: React + Bootstrap                          │
-│ (User Interface - localhost:3000)                   │
+│ (Frontend disajikan oleh CodeIgniter 4)             │
 └──────────────────┬──────────────────────────────────┘
                    ↓ (HTTP/JSON)
 ┌─────────────────────────────────────────────────────┐
 │ LAYER 2: CodeIgniter 4 + JWT                        │
-│ (API Server + HTML Rendering - localhost:80)       │
+│ (HTML Renderer + Backend API - localhost:8081)     │
 │ • Authenticate user (JWT)                           │
 │ • Manage dataset CRUD                              │
 │ • Proxy CKAN API calls                             │
+│ • Render HTML page to browser                      │
 └──────────────────┬──────────────────────────────────┘
                    ↓ (Curl)
 ┌─────────────────────────────────────────────────────┐
@@ -97,7 +99,7 @@ Portal Manajemen Data Terpadu yang memungkinkan masyarakat dan organisasi untuk 
 
 | Aspect | Details |
 |---|---|
-| **Frontend Performance** | SPA dengan React, no full page reload |
+| **Frontend Performance** | React untuk komponen interaktif, Bootstrap untuk UI konsisten |
 | **Security** | JWT tokens, protected admin endpoints, CORS handled |
 | **Scalability** | Containerized architecture, easy horizontal scaling |
 | **Maintainability** | Clean separation of concerns, well-organized code |
@@ -112,8 +114,9 @@ Portal Manajemen Data Terpadu yang memungkinkan masyarakat dan organisasi untuk 
 ```bash
 docker-compose up
 # Services berjalan di:
-# - React: localhost:3000
-# - API: localhost:80
+# - Frontend utama (CI4): localhost:8081
+# - Frontend portal: localhost:8081/app
+# - API backend: localhost:8081/api
 # - CKAN: localhost:5000
 ```
 
@@ -154,7 +157,7 @@ docker-compose up
 
 > **"Sistem ini adalah Portal Data Management yang komprehensif, scalable, dan production-ready.**
 >
-> **Menggunakan teknologi industry-standard (React, CodeIgniter, CKAN, Docker) yang familiar bagi developer dan mudah untuk maintenance.**
+> **Menggunakan React.js, Bootstrap, CodeIgniter 4, CKAN, PostgreSQL, dan Docker dengan pembagian peran yang jelas dan mudah untuk maintenance.**
 >
 > **100% memenuhi requirement dan siap untuk deployment immediate."**
 
@@ -185,10 +188,11 @@ docker-compose up
 - Clean separation
 
 ### Slide 5: Tech Stack
-- Frontend: React + Bootstrap
-- Backend: CodeIgniter 4
+- Frontend: React.js + CodeIgniter 4 + Bootstrap
+- Backend: CodeIgniter 4 + JWT + CKAN proxy
 - Data Platform: CKAN
-- Infrastructure: Docker
+- Database: PostgreSQL
+- Container: Docker
 
 ### Slide 6: Key Features
 - Browse dataset

@@ -10,7 +10,7 @@
 
 Sistem yang kamu bangun adalah:
 
-> **Portal Manajemen Data Terpadu (Unified Data Portal)** yang menyediakan akses data terbuka dengan manajemen dataset lengkap menggunakan CKAN, dilengkapi interface modern berbasis React, backend API CodeIgniter, dan infrastruktur container Docker.
+> **Portal Manajemen Data Terpadu (Unified Data Portal)** yang menyediakan akses data terbuka dengan manajemen dataset lengkap menggunakan CKAN, dilengkapi frontend React.js + Bootstrap, rendering halaman oleh CodeIgniter 4, backend JWT untuk mengambil API CKAN, PostgreSQL sebagai database, dan Docker sebagai container platform.
 
 ---
 
@@ -21,7 +21,8 @@ Sistem yang kamu bangun adalah:
 **Teknologi:**
 - React.js (v19.2.4)
 - Bootstrap 5.3.8
-- Vite (asset bundler)
+- CodeIgniter 4 sebagai renderer halaman HTML
+- CodeIgniter 4 sebagai penyaji frontend React hasil build
 - React Router (routing)
 
 **Lokasi:** `/root/baru/portal-frontend/`
@@ -44,7 +45,8 @@ Sistem yang kamu bangun adalah:
 - ✅ Halaman detail dataset dengan preview data
 - ✅ Fitur pencarian dan filter dataset
 - ✅ Admin panel untuk manajemen dataset
-- ✅ Menampilkan Bootstrap styling (warna, button, layout)
+- ✅ Bootstrap mengatur warna, tombol, dan layout
+- ✅ CodeIgniter 4 menampilkan halaman HTML ke browser
 
 **Routing React:**
 ```jsx
@@ -57,13 +59,8 @@ Sistem yang kamu bangun adalah:
 </Routes>
 ```
 
-**Build Process (Vite):**
-```javascript
-// vite.config.js
-export default defineConfig({
-  plugins: [react()],
-})
-```
+**Runtime Frontend:**
+Frontend React dibuild menjadi file statis, lalu disajikan oleh CodeIgniter 4 ke browser melalui route aplikasi.
 
 ---
 
@@ -115,7 +112,7 @@ class Home extends Controller
 <div class="container mt-5 text-center">
   <h1>Portal Data Kota Tangerang</h1>
   <p>Halaman ini dirender oleh CodeIgniter 4</p>
-  <a href="http://localhost:3000" class="btn btn-primary">
+  <a href="http://localhost:8081/app" class="btn btn-primary">
     Masuk ke Portal React
   </a>
 </div>
@@ -124,9 +121,9 @@ class Home extends Controller
 ```
 
 **🔑 Penting:** CI4 di sini:
-1. ✅ **Merender HTML** (bukan hanya API)
-2. ✅ **Menggunakan Bootstrap** untuk styling
-3. ✅ **Menjadi entry point** aplikasi
+1. ✅ **Merender HTML** ke browser sebagai entry point aplikasi
+2. ✅ **Menjadi host halaman frontend** yang diperkaya komponen React
+3. ✅ **Menjalankan backend JWT** dan proxy ke CKAN API
 
 **Route HTTP yang dirender:**
 ```php
@@ -278,7 +275,7 @@ services:
    ↓
 3. Home.php menampilkan halaman dengan tombol "Masuk ke Portal React"
    ↓
-4. User klik tombol → navigate ke React (localhost:3000)
+4. User klik tombol → navigate ke frontend React via CodeIgniter (`/app`)
    ↓
 5. React load DatasetList component
    ↓
@@ -333,7 +330,7 @@ services:
 | **Data Platform: CKAN** | CKAN | ✅ Full implementation | ✅ 100% | `/docker-ckan/compose/` |
 | **Database: PostgreSQL** | PostgreSQL | ✅ Via CKAN | ✅ 100% | Docker compose config |
 | **Container: Docker** | Docker + Compose | ✅ Multi-service setup | ✅ 100% | `/docker-ckan/compose/docker-compose.yml` |
-| **NodeJS: Asset Management** | Vite + npm | ✅ React asset bundling | ✅ 100% | `/portal-frontend/vite.config.js` |
+| **Runtime Frontend** | CodeIgniter 4 | ✅ Menyajikan React hasil build | ✅ 100% | `/portal-api/public/app` |
 | **Bootstrap: Styling** | Bootstrap CSS | ✅ Color, button, layout | ✅ 100% | CSS classes di PHP/React |
 | **CodeIgniter: HTML Renderer** | View engine | ✅ view('home') | ✅ 100% | `/portal-api/app/Views/home.php` |
 
@@ -349,7 +346,7 @@ services:
 2. ✅ **Backend:** CodeIgniter 4 + JWT authentication + CKAN proxy
 3. ✅ **Data Platform:** CKAN dengan PostgreSQL, Solr, Redis
 4. ✅ **Container:** Docker multi-service architecture
-5. ✅ **NodeJS:** Vite bundler untuk asset management
+5. ✅ **CodeIgniter 4:** menyajikan frontend React hasil build pada runtime
 6. ✅ **HTML Rendering:** CodeIgniter 4 view engine
 
 ---
@@ -362,7 +359,7 @@ services:
 
 > **Secara teknis, sistem menggunakan arsitektur 4-layer:**
 
-> **1. Frontend Layer:** React.js dengan Bootstrap untuk UI responsif, dikelola oleh Vite dan npm untuk manajemen aset.
+> **1. Frontend Layer:** React.js dengan Bootstrap untuk UI responsif yang disajikan ke browser oleh CodeIgniter 4.
 
 > **2. Rendering Layer:** CodeIgniter 4 merender halaman HTML home.php sebagai entry point aplikasi, yang kemudian mengarahkan user ke portal React untuk experience yang optimal.
 
@@ -431,7 +428,7 @@ services:
 ```
 System Overview:
 ├── /portal-frontend/src/App.jsx          (React routing)
-├── /portal-frontend/package.json         (Dependencies: React, Bootstrap, Vite)
+├── /portal-api/public/app                (Hasil build frontend React yang disajikan CI4)
 ├── /portal-api/app/Controllers/Home.php  (HTML rendering)
 ├── /portal-api/app/Views/home.php        (HTML template dengan Bootstrap)
 ├── /portal-api/app/Controllers/Auth.php  (JWT implementation)

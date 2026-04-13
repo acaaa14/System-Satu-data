@@ -1,0 +1,205 @@
+.organisasi-page {
+  background: #f8fafc;
+}
+
+.organisasi-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at left center, rgba(86, 108, 255, 0.18), transparent 28%),
+    linear-gradient(120deg, #101773 0%, #010133 29%, #030439 61%, #213d9e 100%);
+  min-height: 322px;
+}
+
+.organisasi-hero::before,
+.organisasi-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.organisasi-hero::before {
+  background-image: url("../../assets/img/Maskgroup.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.38;
+}
+
+.organisasi-hero::after {
+  background:
+    linear-gradient(112deg, transparent 0 46%, rgba(255, 255, 255, 0.04) 46% 60%, transparent 60%),
+    linear-gradient(32deg, transparent 0 68%, rgba(255, 255, 255, 0.05) 68% 72%, transparent 72%);
+}
+
+.organisasi-hero__content {
+  position: relative;
+  z-index: 1;
+  min-height: 322px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 18px;
+  padding: 48px 0;
+}
+
+.organisasi-hero__illustration {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: min(26vw, 260px);
+  opacity: 0.16;
+  filter: saturate(0) brightness(1.6);
+}
+
+.organisasi-hero h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2.4rem, 4.8vw, 3.5rem);
+  line-height: 1.1;
+}
+
+.organisasi-hero p {
+  margin: 14px 0 0;
+  color: rgba(237, 244, 255, 0.92);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.organisasi-hero p span {
+  color: rgba(237, 244, 255, 0.72);
+  margin-inline: 6px;
+}
+
+.organisasi-hero p strong {
+  color: #0fbeff;
+  font-weight: 700;
+}
+
+.organisasi-listing {
+  position: relative;
+  padding: 36px 0 104px;
+}
+
+.organisasi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 34px 22px;
+}
+
+.organisasi-card {
+  background: #ffffff;
+  border: 1px solid #dce4f1;
+  border-radius: 18px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 18px 38px -34px rgba(20, 35, 79, 0.28);
+}
+
+.organisasi-card__thumb {
+  height: 170px;
+  border-radius: 12px;
+  background: #c7e7fa;
+  display: grid;
+  place-items: center;
+}
+
+.organisasi-card__thumb img {
+  width: min(124px, 45%);
+  object-fit: contain;
+}
+
+.organisasi-card h3 {
+  margin: 22px 0 0;
+  color: #13184b;
+  font-size: 1.15rem;
+  line-height: 1.55;
+  min-height: 112px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.organisasi-card__meta {
+  margin-top: 16px;
+  padding-top: 18px;
+  border-top: 1px solid #e7ebf4;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #7d859d;
+  font-size: 0.94rem;
+}
+
+.organisasi-card__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.organisasi-card__meta-item i {
+  color: #3447ff;
+  font-style: normal;
+  font-size: 1rem;
+}
+
+.organisasi-card__divider {
+  width: 1px;
+  height: 18px;
+  background: #e1e6f1;
+}
+
+.organisasi-scroll-top {
+  position: fixed;
+  right: max(18px, calc((100vw - var(--container)) / 2 - 24px));
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 12px;
+  color: #ffffff;
+  background: linear-gradient(180deg, #1bb5ff, #148ede);
+  box-shadow: 0 18px 34px -22px rgba(9, 44, 101, 0.55);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+@media (max-width: 1100px) {
+  .organisasi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .organisasi-hero,
+  .organisasi-hero__content {
+    min-height: 260px;
+  }
+
+  .organisasi-listing {
+    padding-bottom: 76px;
+  }
+
+  .organisasi-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .organisasi-card h3 {
+    min-height: auto;
+  }
+
+  .organisasi-card__meta {
+    flex-wrap: wrap;
+    gap: 10px 14px;
+  }
+
+  .organisasi-scroll-top {
+    right: 16px;
+    bottom: 18px;
+    top: auto;
+    transform: none;
+  }
+}

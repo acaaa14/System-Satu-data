@@ -11,11 +11,12 @@ Kamu sudah membangun **Portal Data Terpadu** dengan:
 
 | Aspek | Implementasi |
 |---|---|
-| Frontend | React 19 + Bootstrap 5 (localhost:3000) |
-| Backend | CodeIgniter 4 + JWT (localhost:80) |
+| Frontend | React.js + CodeIgniter 4 + Bootstrap |
+| Backend | CodeIgniter 4 + JWT untuk mengambil API CKAN |
 | Data | CKAN platform (localhost:5000) |
 | Database | PostgreSQL |
 | Container | Docker Compose multi-service |
+| Runtime | CodeIgniter 4 menyajikan frontend React hasil build |
 | Status | ✅ 100% aligned dengan requirement |
 
 ---
@@ -126,7 +127,7 @@ Index & usage guide semua dokumentasi
 Copy dari INTERVIEW_TALKING_POINTS → "Opening Statement"
 
 **Short version (30 detik):**
-> "Sistem yang saya bangun adalah Portal Manajemen Data Terpadu yang memungkinkan masyarakat untuk browsing, mencari, dan mengakses dataset publik. Arsitekturnya terdiri dari React frontend, CodeIgniter backend API, dan CKAN sebagai data catalog platform. Semua dijalankan dalam Docker untuk deployment yang konsisten dan scalable."
+> "Sistem yang saya bangun adalah Portal Manajemen Data Terpadu yang memungkinkan masyarakat untuk browsing, mencari, dan mengakses dataset publik. Frontend menggunakan React.js dan Bootstrap, lalu disajikan ke browser oleh CodeIgniter 4. Backend CodeIgniter 4 juga menangani JWT dan integrasi ke CKAN. Semua dijalankan dalam Docker agar deployment konsisten dan scalable."
 
 **Hafalkan ini! Gunakan di pembukaan setiap presentasi.**
 
@@ -135,9 +136,9 @@ Copy dari INTERVIEW_TALKING_POINTS → "Opening Statement"
 ### Tip 2: UNDERSTAND THE 4-LAYER ARCHITECTURE
 
 ```
-Layer 1: React + Bootstrap       (localhost:3000)
+Layer 1: React + Bootstrap + CI4 Renderer
     ↕
-Layer 2: CodeIgniter + JWT       (localhost:80)
+Layer 2: CodeIgniter + JWT + CKAN Proxy
     ↕
 Layer 3: CKAN API                (localhost:5000)
     ↕
@@ -170,8 +171,9 @@ Dari INTERVIEW_TALKING_POINTS, pastikan ready untuk:
   
 - [ ] **Technical check:**
   - [ ] Make sure system running (`docker ps`)
-  - [ ] React accessible (`localhost:3000`)
-  - [ ] API accessible (`localhost:80`)
+  - [ ] Frontend utama accessible (`localhost:8081`)
+  - [ ] Frontend portal accessible (`localhost:8081/app`)
+  - [ ] API accessible (`localhost:8081/api/...`)
   - [ ] CKAN accessible (`localhost:5000`)
   
 - [ ] **Mental preparation:**
@@ -199,7 +201,7 @@ Buka tabel di ANALISIS_SISTEM bagian "ALIGNMENT DENGAN REQUIREMENT"
 - CKAN ✅
 - PostgreSQL ✅
 - Docker ✅
-- NodeJS/Vite ✅
+- Runtime tanpa Node.js aktif ✅
 
 **Statement:** "Sistem saya sudah 100% memenuhi semua requirement yang diberikan."
 

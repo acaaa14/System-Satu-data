@@ -1,0 +1,125 @@
+.logo-home {
+  background: linear-gradient(120deg, #06065f 0%, #03023b 40%, #253f9f 100%);
+  color: #f4f7ff;
+  min-height: calc(100svh - 84px);
+  display: grid;
+  align-content: space-between;
+  padding: 34px 0 24px;
+}
+
+.logo-home__inner {
+  display: grid;
+  grid-template-columns: 1fr minmax(360px, 0.95fr);
+  gap: 28px;
+  align-items: center;
+}
+
+.logo-home__left h1 {
+  margin: 0;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  font-size: clamp(2.2rem, 5.4vw, 5rem);
+}
+
+.logo-home__left h1 span {
+  color: #14beff;
+}
+
+.logo-home__left p {
+  margin-top: 16px;
+  font-size: clamp(0.95rem, 1.25vw, 1.28rem);
+  color: rgba(236, 244, 255, 0.92);
+  font-weight: 500;
+}
+
+.logo-home__features {
+  margin-top: 44px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  max-width: 700px;
+}
+
+.logo-home__feature {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.logo-home__feature-icon {
+  width: 120px;
+  height: 92px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(44, 166, 255, 0.9), rgba(23, 94, 186, 0.95));
+  border: 2px solid rgba(173, 227, 255, 0.55);
+  box-shadow: 0 20px 30px -20px rgba(0, 0, 0, 0.5);
+}
+
+.logo-home__feature-icon img {
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+}
+
+.logo-home__feature span {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.logo-home__right {
+  display: flex;
+  justify-content: center;
+}
+
+.logo-home__right img {
+  width: min(100%, 780px);
+  object-fit: contain;
+}
+
+.logo-home__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  color: rgba(236, 244, 255, 0.9);
+  font-size: 0.95rem;
+}
+
+.logo-home__bottom p {
+  margin: 0;
+}
+
+.logo-home__bottom-logos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-home__bottom-logos img {
+  height: 32px;
+  object-fit: contain;
+}
+
+@media (max-width: 960px) {
+  .logo-home {
+    min-height: auto;
+    padding-bottom: 34px;
+  }
+
+  .logo-home__inner {
+    grid-template-columns: 1fr;
+  }
+
+  .logo-home__right {
+    order: -1;
+  }
+
+  .logo-home__features {
+    grid-template-columns: 1fr;
+    max-width: 360px;
+  }
+}

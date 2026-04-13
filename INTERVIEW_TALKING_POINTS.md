@@ -9,14 +9,14 @@
 ### Jika ditanya: "Jelaskan sistem yang kamu buat?"
 
 **Short Version (30 detik):**
-> "Sistem yang saya bangun adalah Portal Manajemen Data Terpadu yang memungkinkan masyarakat untuk browsing, mencari, dan mengakses dataset publik. Arsitekturnya terdiri dari React frontend, CodeIgniter backend API, dan CKAN sebagai data catalog platform. Semua dijalankan dalam Docker untuk deployment yang konsisten dan scalable."
+> "Sistem yang saya bangun adalah Portal Manajemen Data Terpadu yang memungkinkan masyarakat untuk browsing, mencari, dan mengakses dataset publik. Frontend-nya menggunakan React.js, Bootstrap, dan halaman HTML yang dirender oleh CodeIgniter 4. Di sisi backend, CodeIgniter 4 juga menangani JWT dan mengambil data dari API CKAN. Seluruh sistem dijalankan dengan Docker."
 
 **Medium Version (1 menit):**
 > "Sistem ini adalah Portal Data yang terdiri dari 4 layer utama:
 
-> **Layer 1 - Frontend:** React.js dengan Bootstrap untuk UI yang responsif dan interaktif. Menggunakan Vite sebagai build tool dan Axios untuk API communication.
+> **Layer 1 - Frontend:** React.js dengan Bootstrap untuk UI yang responsif dan interaktif. Frontend production disajikan ke browser oleh CodeIgniter 4.
 
-> **Layer 2 - Backend:** CodeIgniter 4 yang melayani dua fungsi:
+> **Layer 2 - Backend dan Rendering:** CodeIgniter 4 yang melayani dua fungsi:
 > - Merender halaman HTML home.php sebagai entry point aplikasi dengan Bootstrap styling
 > - Menyediakan REST API protected dengan JWT authentication untuk operasi CRUD dataset
 
@@ -36,12 +36,12 @@
 > "Pemilihan ini didasarkan pada beberapa pertimbangan:
 
 > **Separation of Concerns:**
-> - CodeIgniter fokus ke backend logic, authentication, dan CKAN integration
-> - React fokus ke frontend interactivity dan real-time user experience
+> - CodeIgniter fokus ke rendering HTML, backend logic, authentication, dan CKAN integration
+> - React fokus ke frontend interactivity dan user experience
 > - Ini membuat codebase lebih maintainable dan testable
 
 > **Performance & UX:**
-> - CodeIgniter merender halaman awal yang ringan (home.php)
+> - CodeIgniter merender halaman awal ke browser
 > - React menghandle interaktivitas tanpa page refresh (SPA experience)
 > - Ini memberikan yang terbaik dari traditional dan SPA approach
 
@@ -68,7 +68,7 @@
 > - JWT authentication bisa di-enforce di satu tempat (backend)
 
 > **CORS Handling:**
-> - React di port 3000, CodeIgniter di port 80
+> - Frontend production diakses melalui CodeIgniter di port 8081
 > - Without proxy, perlu setup CORS di CKAN (lebih kompleks)
 > - With proxy, CORS handled cleanly di CodeIgniter
 
@@ -374,7 +374,7 @@
 
 > **1. Frontend Optimization**
 > - React dengan React Router untuk SPA (no full page reload)
-> - Vite build tool: fast cold start, optimized bundle
+> - Frontend React dibuild menjadi file statis lalu disajikan oleh CodeIgniter
 > - Bootstrap CSS loaded dari CDN (caching di browser)
 > - Axios untuk HTTP requests (modern, efficient)
 
@@ -419,7 +419,7 @@
 > **Development (Current Setup)**
 > - Run locally dengan docker-compose
 > - Volume mounting untuk live code reloading
-> - Can access services via localhost:3000, localhost:80, localhost:5000
+> - Can access services via localhost:8081/app, localhost:8081/api, localhost:5000
 
 > **Staging/Testing**
 > - Deploy docker-compose ke staging server

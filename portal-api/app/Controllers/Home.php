@@ -6,8 +6,13 @@ use CodeIgniter\Controller;
 
 class Home extends Controller
 {
-    public function index()
+    public function index(?string $path = null)
     {
-        return view('home');
+        // Controller ini sekarang hanya menjaga kompatibilitas route lama `/app`.
+        if ($path) {
+            return redirect()->to('/' . ltrim($path, '/'));
+        }
+
+        return redirect()->to('/');
     }
 }

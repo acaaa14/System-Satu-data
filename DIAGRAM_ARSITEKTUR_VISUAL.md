@@ -2,6 +2,15 @@
 
 ## Diagram 1: System Architecture Overview
 
+Catatan alignment stack:
+- Frontend: React.js + CodeIgniter 4 + Bootstrap
+- Backend: CodeIgniter 4 (JWT) untuk mengambil API dari CKAN
+- Data Platform: CKAN
+- Database: PostgreSQL
+- Container: Docker
+- Bootstrap mengatur warna, tombol, dan tata letak
+- CodeIgniter 4 merender halaman HTML ke browser
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                        PORTAL MANAJEMEN DATA TERPADU                     │
@@ -20,10 +29,9 @@
 │  ┃  │  Styling: Bootstrap 5.3.8                              │  ┃ │
 │  ┃  │  HTTP Client: Axios                                    │  ┃ │
 │  ┃  │                                                          │  ┃ │
-│  ┃  │  Bundle: Vite (asset manager)                          │  ┃ │
-│  ┃  │  Runtime: Node.js (npm)                                │  ┃ │
+│  ┃  │  React build disajikan oleh CodeIgniter 4             │  ┃ │
 │  ┃  └──────────────────────────────────────────────────────────┘  ┃ │
-│  ┃              localhost:3000 (Development Mode)                    ┃ │
+│  ┃              frontend production via CodeIgniter                 ┃ │
 │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
 │                                   │                                     │
 │                    HTTP Requests (Axios)                                │
@@ -38,7 +46,7 @@
 │  ┃  │  └─> Home::index()                                      │  ┃ │
 │  ┃  │      └─> view('home.php')  ✅ HTML RENDERING            │  ┃ │
 │  ┃  │          • Bootstrap CSS imported                       │  ┃ │
-│  ┃  │          • Tombol "Masuk ke Portal React"              │  ┃ │
+│  ┃  │          • HTML dirender ke browser                    │  ┃ │
 │  ┃  │                                                          │  ┃ │
 │  ┃  │  REST API Routes:                                       │  ┃ │
 │  ┃  │  ├─ GET  /api/datasets                                 │  ┃ │
@@ -186,13 +194,13 @@
 │  ┌─────────────────────────────────────────────────────────────┐ │
 │  │                  FRONTEND LAYER                             │ │
 │  │  ┌──────────────┐  ┌──────────────┐  ┌────────────────────┤ │
-│  │  │ React 19.2   │  │ Bootstrap    │  │ Vite Build Tool    │ │
+│  │  │ React 19.2   │  │ Bootstrap    │  │ CodeIgniter 4      │ │
 │  │  │ • Routing    │  │ 5.3.8        │  │ • Hot reload       │ │
 │  │  │ • Components │  │ • Colors     │  │ • Asset bundling   │ │
 │  │  │ • State      │  │ • Buttons    │  │                    │ │
 │  │  │ • API calls  │  │ • Layout     │  │ NodeJS + npm       │ │
 │  │  └──────────────┘  │ • Typography │  │ dependency mgmt    │ │
-│  │  localhost:3000    └──────────────┘  └────────────────────┤ │
+│  │  via browser        └──────────────┘  └────────────────────┤ │
 │  └─────────────────────────────────────────────────────────────┘ │
 │                             ↕  (HTTP)                              │
 │  ┌─────────────────────────────────────────────────────────────┐ │
@@ -202,8 +210,8 @@
 │  │  │  ┌────────────────┐  ┌──────────────────────────┐   │  │ │
 │  │  │  │ HTML Rendering │  │  REST API Controllers   │   │  │ │
 │  │  │  │ view('home.php')  │  • Auth.php (JWT)       │   │  │ │
-│  │  │  │ Bootstrap CSS  │  │  • Dataset.php (CKAN)  │   │  │ │
-│  │  │  │ Entry point    │  │  • Home.php (render)   │   │  │ │
+│  │  │  │ Bootstrap UI   │  │  • Dataset.php (CKAN)  │   │  │ │
+│  │  │  │ Browser output │  │  • Home.php (render)   │   │  │ │
 │  │  │  └────────────────┘  │  • CORS handling        │   │  │ │
 │  │  │                       └──────────────────────────┘   │  │ │
 │  │  │  ┌──────────────┐  ┌──────────────────────────┐     │  │ │
@@ -283,11 +291,11 @@
 │  ┌──────────────┐    ┌──────────────┐                             │
 │  │ portal-api   │    │ portal-fe    │                             │
 │  │              │    │              │                             │
-│  │ port:80      │    │ port:3000    │                             │
-│  │ (Apache)     │    │ (Node.js)    │                             │
+│  │ port:80      │    │ frontend build │                             │
+│  │ (Apache)     │    │ static asset   │                             │
 │  │              │    │              │                             │
 │  │ CodeIgniter  │    │   React      │                             │
-│  │ PHP App      │    │   Vite       │                             │
+│  │ PHP App      │    │   React      │                             │
 │  └──────────────┘    └──────────────┘                             │
 │        ◄──────────────────────────►  HTTP Communication           │
 │                                                                    │
