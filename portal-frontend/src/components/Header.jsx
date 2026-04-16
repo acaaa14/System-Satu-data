@@ -1,10 +1,18 @@
 import logoPortal from "../assets/img/logologin.png"
 import "../styles/css/Header.css"
 
-export default function Header({ currentView, onLogoClick, onHomeClick, onOrganisasiClick }) {
+export default function Header({
+  currentView,
+  onLogoClick,
+  onHomeClick,
+  onOrganisasiClick,
+  onPublikasiClick,
+  onTopikClick,
+}) {
   return (
     <header className="portal-header">
       <div className="container portal-header__inner">
+        {/* Klik logo diarahkan ke tampilan logo/landing khusus. */}
         <button
           type="button"
           className="portal-header__brand"
@@ -15,6 +23,7 @@ export default function Header({ currentView, onLogoClick, onHomeClick, onOrgani
         </button>
 
         <nav className="portal-header__nav" aria-label="Main menu">
+          {/* currentView dipakai untuk memberi penanda menu yang sedang aktif. */}
           <button
             type="button"
             className={`portal-header__nav-btn ${currentView === "default" ? "is-active" : ""}`}
@@ -29,16 +38,35 @@ export default function Header({ currentView, onLogoClick, onHomeClick, onOrgani
           >
             Organisasi
           </button>
-          <a href="#">Publikasi</a>
-          <a href="#">Topik</a>
-          <a href="#">Peta</a>
+          <button
+            type="button"
+            className={`portal-header__nav-link ${currentView === "publikasi" ? "is-active" : ""}`}
+            onClick={onPublikasiClick}
+          >
+            Publikasi
+          </button>
+          <button
+            type="button"
+            className={`portal-header__nav-link ${currentView === "topik" ? "is-active" : ""}`}
+            onClick={onTopikClick}
+          >
+            Topik
+          </button>
+          <button
+            type="button"
+            className="portal-header__nav-link"
+            onClick={() => window.open("https://maps.tangerangkota.go.id/", "_blank", "noreferrer")}
+          >
+            Peta
+          </button>
         </nav>
 
         <div className="portal-header__actions">
+          {/* Tombol aksi tambahan ini masih placeholder dan bisa dihubungkan ke fitur berikutnya. */}
           <button className="portal-header__search" type="button" aria-label="Cari">
             ⌕
           </button>
-          <button className="portal-header__login" type="button">
+          <button className="portal-header__login" type="button" onClick={() => { window.location.href = "/login" }}>
             Login
           </button>
         </div>

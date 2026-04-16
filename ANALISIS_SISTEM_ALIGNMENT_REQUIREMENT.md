@@ -1,444 +1,259 @@
-# 📊 ANALISIS SISTEM & ALIGNMENT REQUIREMENT
+# Analisis Sistem dan Kesesuaian Implementasi
 
+## 1. Definisi Sistem
 
+Sistem ini adalah portal data Kota Tangerang yang:
 
----
+- memakai CKAN sebagai sumber katalog data,
+- memakai CodeIgniter 4 sebagai backend API dan penyaji build frontend,
+- memakai React sebagai antarmuka pengguna,
+- menyediakan halaman publik, pencarian, publikasi, topik, organisasi, login, dan admin.
 
-## 🧩 BAGIAN 1: PENJELASAN SISTEM YANG KAMU BANGUN
+## 2. Komponen yang Benar-Benar Ada di Repo
 
-### 📌 Definisi Sistem
+### Frontend
 
-Sistem yang kamu bangun adalah:
+Lokasi: `portal-frontend/`
 
-> **Portal Manajemen Data Terpadu (Unified Data Portal)** yang menyediakan akses data terbuka dengan manajemen dataset lengkap menggunakan CKAN, dilengkapi frontend React.js + Bootstrap, rendering halaman oleh CodeIgniter 4, backend JWT untuk mengambil API CKAN, PostgreSQL sebagai database, dan Docker sebagai container platform.
+Implementasi yang aktif:
+- `src/pages/Home.jsx`
+- `src/pages/Organisasi.jsx`
+- `src/pages/Topik.jsx`
+- `src/pages/Publikasi.jsx`
+- `src/pages/Search.jsx`
+- `src/pages/Login.jsx`
+- `src/pages/Admin.jsx`
 
----
+Catatan:
+- frontend memakai state dan routing manual berbasis `window.history`,
+- React Router terpasang sebagai dependency, tetapi routing aktif saat ini tidak memakai `<Routes>`.
 
-## 🏗️ BAGIAN 2: ARSITEKTUR SISTEM (4-LAYER)
+### Backend
 
-### Layer 1️⃣: Frontend Layer
+Lokasi: `portal-api/`
 
-**Teknologi:**
-- React.js (v19.2.4)
-- Bootstrap 5.3.8
-- CodeIgniter 4 sebagai renderer halaman HTML
-- CodeIgniter 4 sebagai penyaji frontend React hasil build
-- React Router (routing)
+Controller yang aktif:
+- `Frontend.php`
+- `Dataset.php`
+- `Auth.php`
+- `Visitor.php`
+- `Home.php`
 
-**Lokasi:** `/root/baru/portal-frontend/`
+Tanggung jawab utama backend:
+- menyajikan file build React dari `public/frontend/index.html`,
+- menyediakan endpoint API untuk frontend,
+- meneruskan request tertentu ke CKAN,
+- menyimpan counter pengunjung sederhana via SQLite.
 
-**File Bukti:**
+### Platform data
+
+Lokasi konfigurasi: `docker-ckan/`
+
+Service yang menjadi bagian arsitektur:
+- CKAN
+- PostgreSQL
+- Solr
+- Redis
+- Datapusher
+
+## 3. Alur Sistem Aktual
+
+1. User membuka route publik.
+2. CodeIgniter route frontend mengarah ke `Frontend::index`.
+3. Browser menerima shell aplikasi React.
+4. React memanggil `/api/*` ke backend.
+5. Backend mengambil data ke CKAN untuk dataset, organisasi, search, dan preview.
+6. Data hasil backend dipakai untuk merender halaman publik.
+
+## 4. Endpoint yang Aktif
+
+### Frontend route
+
+- `/`
+- `/organisasi`
+- `/publikasi`
+- `/topik`
+- `/pencarian`
+- `/open-data`
+- `/jadwal-rilis-dataset`
+- `/login`
+- `/admin`
+- `/dataset/:id`
+
+### API route
+
+- `GET /api/datasets`
+- `GET /api/organizations`
+- `GET /api/dataset/:id`
+- `GET /api/search`
+- `GET /api/preview/:id`
+- `GET /api/visitors`
+- `POST /api/visitors/increment`
+- `POST /api/login`
+- `POST /api/admin/dataset`
+- `PUT /api/admin/dataset/:id`
+- `DELETE /api/admin/dataset/:id`
+
+## 5. Kesesuaian Implementasi
+
+| Area | Status | Catatan |
+| --- | --- | --- |
+| Frontend React aktif | Sesuai | Halaman publik utama sudah ada |
+| CodeIgniter sebagai host frontend | Sesuai | `Frontend::index` melayani build React |
+| CKAN sebagai sumber data | Sesuai | Dipakai untuk dataset, organisasi, search, preview |
+| Login admin | Sesuai | Endpoint login tersedia |
+| Halaman publikasi | Sesuai | Data publikasi masih local/browser storage |
+| Statistik portal | Sebagian | Sebagian dari CKAN, sebagian dari local state/storage |
+| Visitor analytics | Sesuai | Counter sederhana via SQLite |
+| Dokumentasi lama | Belum sesuai | Perlu diselaraskan dengan implementasi aktual |
+
+## 6. Temuan Penting
+
+- Dokumentasi lama masih menyebut struktur halaman dan route versi lama.
+- Frontend saat ini lebih banyak memakai route manual daripada React Router.
+- Publikasi belum berasal dari backend/CKAN; masih dibaca dari storage frontend.
+- Counter pengunjung sudah ada, tetapi belum terdokumentasi rapi sebelumnya.
+
+## 7. Bukti Implementasi di Kode
+
+- `Frontend: React.js + Bootstrap`
+  Bukti dependency ada di [portal-frontend/package.json](/root/baru/portal-frontend/package.json:13), yaitu `react`, `react-dom`, dan `bootstrap`.
+
 ```json
-// package.json
+// File: portal-frontend/package.json
+// Letak: dependencies
 {
   "dependencies": {
-    "react": "^19.2.4",
     "bootstrap": "^5.3.8",
-    "react-router-dom": "^7.13.1",
-    "axios": "^1.13.6"
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   }
 }
 ```
 
-**Fungsi:**
-- ✅ Menampilkan daftar dataset dengan interface interaktif
-- ✅ Halaman detail dataset dengan preview data
-- ✅ Fitur pencarian dan filter dataset
-- ✅ Admin panel untuk manajemen dataset
-- ✅ Bootstrap mengatur warna, tombol, dan layout
-- ✅ CodeIgniter 4 menampilkan halaman HTML ke browser
+- `CodeIgniter 4 sebagai backend dan renderer frontend`
+  Bukti framework ada di [portal-api/composer.json](/root/baru/portal-api/composer.json:12), yaitu `codeigniter4/framework`.
+  Bukti renderer ada di [portal-api/app/Config/Routes.php](/root/baru/portal-api/app/Config/Routes.php:8) dan [portal-api/app/Controllers/Frontend.php](/root/baru/portal-api/app/Controllers/Frontend.php:10).
 
-**Routing React:**
-```jsx
-// src/App.jsx
-<Routes>
-  <Route path="/" element={<DatasetList />} />
-  <Route path="/dataset/:id" element={<DatasetDetail />} />
-  <Route path="/login" element={<Login/>}/>
-  <Route path="/admin" element={<Admin/>}/>
-</Routes>
-```
-
-**Runtime Frontend:**
-Frontend React dibuild menjadi file statis, lalu disajikan oleh CodeIgniter 4 ke browser melalui route aplikasi.
-
----
-
-### Layer 2️⃣: Backend / Rendering Layer (CodeIgniter 4)
-
-**Teknologi:**
-- CodeIgniter 4 (Framework)
-- JWT Authentication (Firebase/PHP-JWT v7.0)
-- PHP 8.2
-- Apache Web Server
-
-**Lokasi:** `/root/baru/portal-api/`
-
-**File Bukti:**
 ```json
-// composer.json
+// File: portal-api/composer.json
+// Letak: require
 {
   "require": {
-    "php": "^8.1",
     "codeigniter4/framework": "^4.0",
     "firebase/php-jwt": "^7.0"
   }
 }
 ```
 
-**Fungsi Rendering HTML:**
 ```php
-// app/Controllers/Home.php
-class Home extends Controller
+// File: portal-api/app/Config/Routes.php
+// Letak: route frontend utama
+$routes->get('/', 'Frontend::index');
+$routes->get('organisasi', 'Frontend::index');
+$routes->get('publikasi', 'Frontend::index');
+$routes->get('topik', 'Frontend::index');
+$routes->get('pencarian', 'Frontend::index');
+```
+
+```php
+// File: portal-api/app/Controllers/Frontend.php
+// Letak: method index()
+public function index(?string $path = null)
 {
-    public function index()
-    {
-        return view('home');  // ✅ Render HTML
-    }
+    $indexFile = FCPATH . 'frontend/index.html';
+
+    return $this->response
+        ->setContentType('text/html')
+        ->setBody((string) file_get_contents($indexFile));
 }
 ```
 
-**Halaman HTML yang dirender:**
-```html
-<!-- app/Views/home.php -->
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Portal Data Kota Tangerang</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-        rel="stylesheet">
-</head>
-<body>
-<div class="container mt-5 text-center">
-  <h1>Portal Data Kota Tangerang</h1>
-  <p>Halaman ini dirender oleh CodeIgniter 4</p>
-  <a href="http://localhost:8081/app" class="btn btn-primary">
-    Masuk ke Portal React
-  </a>
-</div>
-</body>
-</html>
+- `JWT di backend`
+  Bukti dependency ada di [portal-api/composer.json](/root/baru/portal-api/composer.json:12), yaitu `firebase/php-jwt`.
+  Bukti route login ada di [portal-api/app/Config/Routes.php](/root/baru/portal-api/app/Config/Routes.php:34).
+
+```php
+// File: portal-api/app/Config/Routes.php
+// Letak: route autentikasi dan admin
+$routes->post('api/login', 'Auth::login');
+$routes->post('api/admin/dataset', 'Dataset::create', ['filter'=>'jwt']);
+$routes->put('api/admin/dataset/(:segment)', 'Dataset::update/$1', ['filter'=>'jwt']);
+$routes->delete('api/admin/dataset/(:segment)', 'Dataset::delete/$1', ['filter'=>'jwt']);
 ```
 
-**🔑 Penting:** CI4 di sini:
-1. ✅ **Merender HTML** ke browser sebagai entry point aplikasi
-2. ✅ **Menjadi host halaman frontend** yang diperkaya komponen React
-3. ✅ **Menjalankan backend JWT** dan proxy ke CKAN API
+- `CKAN sebagai data platform`
+  Bukti endpoint CKAN dipakai backend ada di [portal-api/app/Controllers/Dataset.php](/root/baru/portal-api/app/Controllers/Dataset.php:10).
+  Bukti service CKAN ada di [docker-ckan/compose/services/ckan/ckan.yaml](/root/baru/docker-ckan/compose/services/ckan/ckan.yaml:3).
 
-**Route HTTP yang dirender:**
 ```php
-// app/Config/Routes.php
-$routes->get('/', 'Home::index');  // ✅ Render HTML
-```
+// File: portal-api/app/Controllers/Dataset.php
+// Letak: deklarasi endpoint CKAN + helper request
+private $ckan = "http://ckan:5000/api/3/action";
 
----
-
-### Layer 3️⃣: API Backend + CKAN Integration
-
-**Routing API:**
-```php
-// app/Config/Routes.php
-$routes->get('api/datasets', 'Dataset::index');              // List dataset
-$routes->get('api/dataset/(:segment)', 'Dataset::show/$1'); // Detail
-$routes->get('api/search', 'Dataset::search');               // Search
-$routes->get('api/preview/(:segment)', 'Dataset::preview/$1'); // Preview
-$routes->post('api/login', 'Auth::login');                   // Login
-$routes->post('api/admin/dataset', 'Dataset::create', ['filter'=>'jwt']); // Create
-$routes->put('api/admin/dataset/(:segment)', 'Dataset::update/$1', ['filter'=>'jwt']); // Update
-$routes->delete('api/admin/dataset/(:segment)', 'Dataset::delete/$1', ['filter'=>'jwt']); // Delete
-```
-
-**🔐 JWT Authentication:**
-```php
-// app/Controllers/Auth.php
-class Auth extends Controller
+private function requestCkan($endpoint)
 {
-    private $key;
-
-    public function __construct()
-    {
-        $this->key = env('JWT_SECRET');
-    }
-
-    public function login()
-    {
-        $data = $this->request->getJSON(true);
-        $username = $data['username'] ?? "";
-        $password = $data['password'] ?? "";
-        
-        if($username === "admin" && $password === "123456"){
-            $payload = [
-                "iss" => "portal-data",
-                "iat" => time(),
-                "exp" => time() + 3600,  // Token berlaku 1 jam
-                "user" => $username
-            ];
-
-            $token = JWT::encode($payload, $this->key, 'HS256');
-            return $this->response->setJSON([
-                "status" => "success",
-                "token" => $token
-            ]);
-        }
-        return $this->response->setJSON(["status" => "error"]);
-    }
+    $client = \Config\Services::curlrequest(["timeout" => 10]);
+    $response = $client->get($this->ckan . $endpoint);
+    return json_decode($response->getBody(), true);
 }
 ```
 
-**🔗 CKAN Integration:**
-```php
-// app/Controllers/Dataset.php
-class Dataset extends Controller
-{
-    private $ckan = "http://ckan:5000/api/3/action";
-
-    // Helper untuk request ke CKAN
-    private function requestCkan($endpoint)
-    {
-        $client = \Config\Services::curlrequest(['timeout' => 10]);
-        $response = $client->get($this->ckan . $endpoint);
-        return json_decode($response->getBody(), true);
-    }
-
-    // List dataset dari CKAN
-    public function index()
-    {
-        $data = $this->requestCkan("/package_search");
-        return $this->response->setJSON($data);
-    }
-
-    // Detail dataset dari CKAN
-    public function show($id)
-    {
-        $data = $this->requestCkan("/package_show?id=" . $id);
-        return $this->response->setJSON($data);
-    }
-
-    // Search dataset
-    public function search()
-    {
-        $q = $this->request->getGet("q") ?? "";
-        $data = $this->requestCkan("/package_search?q=" . urlencode($q));
-        return $this->response->setJSON($data);
-    }
-
-    // Preview data
-    public function preview($resourceId)
-    {
-        $data = $this->requestCkan("/datastore_search?resource_id=" . 
-                                   $resourceId . "&limit=20");
-        return $this->response->setJSON($data);
-    }
-}
-```
-
----
-
-### Layer 4️⃣: Data Platform Layer (CKAN)
-
-**Teknologi:**
-- CKAN (Data Catalog Platform)
-- PostgreSQL (Database)
-- Solr (Search Engine)
-- Redis (Cache)
-- Datapusher (Data Processing)
-
-**Docker Compose Setup:**
 ```yaml
-# docker-ckan/compose/docker-compose.yml
+# File: docker-ckan/compose/services/ckan/ckan.yaml
+# Letak: definisi service CKAN
 services:
-  ckan:        # CKAN Core
-  ckan-workers # Job queue
-  db:          # PostgreSQL
-  solr:        # Search indexing
-  redis:       # Caching
-  datapusher:  # Data processing
+  ckan:
+    image: ghcr.io/keitaroinc/ckan:${CKAN_VERSION}
 ```
 
-**Fungsi CKAN:**
-- ✅ Menyimpan metadata dataset
-- ✅ Mengindeks dataset di Solr untuk pencarian cepat
-- ✅ Preprocessing data via Datapusher
-- ✅ Caching via Redis
-- ✅ Storing metadata di PostgreSQL
+- `PostgreSQL sebagai database utama platform data`
+  Bukti stack database diorkestrasi dari [docker-ckan/compose/docker-compose.yml](/root/baru/docker-ckan/compose/docker-compose.yml:25).
 
----
-
-## 🔄 FLOW PENGGUNAAN SISTEM
-
-### Skenario 1: User Browsing Dataset
-
-```
-1. User membuka browser
-   ↓
-2. Akses http://localhost/  (CodeIgniter render home.php)
-   ↓
-3. Home.php menampilkan halaman dengan tombol "Masuk ke Portal React"
-   ↓
-4. User klik tombol → navigate ke frontend React via CodeIgniter (`/app`)
-   ↓
-5. React load DatasetList component
-   ↓
-6. DatasetList call: axios.get('http://localhost/api/datasets')
-   ↓
-7. CodeIgniter Dataset::index() call CKAN API
-   ↓
-8. CKAN return dataset dari PostgreSQL, indexed by Solr
-   ↓
-9. Data kembali ke React dan ditampilkan dengan Bootstrap styling
+```yaml
+# File: docker-ckan/compose/docker-compose.yml
+# Letak: include services
+include:
+  - path: services/ckan/ckan.yaml
+  - path: services/db/db.yaml
+  - path: services/solr/solr.yaml
+  - path: services/redis/redis.yaml
 ```
 
-### Skenario 2: Admin Login & Manage Dataset
+- `Docker sebagai container orchestrator`
+  Bukti ada di [docker-ckan/compose/docker-compose.yml](/root/baru/docker-ckan/compose/docker-compose.yml:1), karena seluruh service CKAN, db, redis, solr, datapusher, portal-api, dan portal-frontend digabung di sana.
 
-```
-1. User klik Login di React
-   ↓
-2. Input username/password
-   ↓
-3. React POST ke: http://localhost/api/login
-   ↓
-4. CodeIgniter Auth::login() validasi & generate JWT token
-   ↓
-5. Token disimpan di localStorage React
-   ↓
-6. Admin panel di React menerima token di header
-   ↓
-7. CREATE/UPDATE/DELETE dataset:
-   - React POST/PUT/DELETE ke: http://localhost/api/admin/dataset
-   - CodeIgniter menerima JWT filter secara otomatis
-   - Divalidasi, jika valid → forward ke CKAN API
-   ↓
-8. CKAN update database & re-index di Solr
-   ↓
-9. Response kembali ke React
+```yaml
+# File: docker-ckan/compose/docker-compose.yml
+# Letak: root compose stack
+name: ckan
+
+include:
+  - path: services/ckan/ckan.yaml
+  - path: services/portal-api/portal-api.yaml
+  - path: services/portal-frontend/portal-frontend.yaml
 ```
 
----
+- `Bootstrap untuk warna, tombol, dan tata letak`
+  Bukti penggunaan langsung bisa dilihat di [portal-api/app/Views/home.php](/root/baru/portal-api/app/Views/home.php:12), yaitu import CDN Bootstrap dan class seperti `btn`, `card`, `row`, serta `col-lg-7`.
 
-## ✅ BAGIAN 3: ALIGNMENT DENGAN REQUIREMENT
+```html
+<!-- File: portal-api/app/Views/home.php -->
+<!-- Letak: head dan body -->
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+>
 
-### Tabel Checklist
-
-| **Requirement** | **Teknologi** | **Implementasi** | **Status** | **Bukti File** |
-|---|---|---|---|---|
-| **Frontend: React.js** | React 19.2.4 | ✅ App.jsx dengan routing | ✅ 100% | `/portal-frontend/src/App.jsx` |
-| **Frontend: Bootstrap** | Bootstrap 5.3.8 | ✅ CSS imported & used | ✅ 100% | `/portal-api/app/Views/home.php` + npm dependency |
-| **Frontend: CodeIgniter4** | CodeIgniter 4 | ✅ Render home.php | ✅ 100% | `/portal-api/app/Controllers/Home.php` |
-| **Backend: CodeIgniter 4** | CodeIgniter 4 | ✅ API server | ✅ 100% | `/portal-api/app/Controllers/` |
-| **Backend: JWT** | Firebase JWT | ✅ Login dengan JWT | ✅ 100% | `/portal-api/app/Controllers/Auth.php` |
-| **Backend: CKAN Integration** | Curl Request | ✅ Proxy ke CKAN API | ✅ 100% | `/portal-api/app/Controllers/Dataset.php` |
-| **Data Platform: CKAN** | CKAN | ✅ Full implementation | ✅ 100% | `/docker-ckan/compose/` |
-| **Database: PostgreSQL** | PostgreSQL | ✅ Via CKAN | ✅ 100% | Docker compose config |
-| **Container: Docker** | Docker + Compose | ✅ Multi-service setup | ✅ 100% | `/docker-ckan/compose/docker-compose.yml` |
-| **Runtime Frontend** | CodeIgniter 4 | ✅ Menyajikan React hasil build | ✅ 100% | `/portal-api/public/app` |
-| **Bootstrap: Styling** | Bootstrap CSS | ✅ Color, button, layout | ✅ 100% | CSS classes di PHP/React |
-| **CodeIgniter: HTML Renderer** | View engine | ✅ view('home') | ✅ 100% | `/portal-api/app/Views/home.php` |
-
----
-
-## 🎯 KESIMPULAN ALIGNMENT
-
-### ✨ KESIMPULAN: 100% SELARAS REQUIREMENT
-
-**Semua requirement perusahaan sudah terpenuhi dengan implementasi yang solid:**
-
-1. ✅ **Frontend:** React + Bootstrap + CodeIgniter4 (render home.php)
-2. ✅ **Backend:** CodeIgniter 4 + JWT authentication + CKAN proxy
-3. ✅ **Data Platform:** CKAN dengan PostgreSQL, Solr, Redis
-4. ✅ **Container:** Docker multi-service architecture
-5. ✅ **CodeIgniter 4:** menyajikan frontend React hasil build pada runtime
-6. ✅ **HTML Rendering:** CodeIgniter 4 view engine
-
----
-
-## 💬 BAGIAN 4: STATEMENT PROFESIONAL (SIAP PRESENTASI)
-
-### Statement untuk HR / Tech Lead:
-
-> **"Sistem yang saya bangun adalah Portal Manajemen Data Terpadu yang sepenuhnya memenuhi requirement perusahaan dengan implementasi modern dan scalable.**
-
-> **Secara teknis, sistem menggunakan arsitektur 4-layer:**
-
-> **1. Frontend Layer:** React.js dengan Bootstrap untuk UI responsif yang disajikan ke browser oleh CodeIgniter 4.
-
-> **2. Rendering Layer:** CodeIgniter 4 merender halaman HTML home.php sebagai entry point aplikasi, yang kemudian mengarahkan user ke portal React untuk experience yang optimal.
-
-> **3. Backend API Layer:** CodeIgniter 4 menyediakan REST API dengan JWT authentication untuk keamanan. API ini bertindak sebagai proxy ke CKAN API, menangani rute untuk mendapatkan daftar dataset, detail dataset, pencarian, preview data, dan operasi admin (create, update, delete).
-
-> **4. Data Platform Layer:** CKAN menjadi core system untuk manajemen dataset dan metadata, dengan dukungan penuh dari PostgreSQL sebagai database, Solr untuk indexing pencarian, Redis untuk caching, dan Datapusher untuk processing data.
-
-> **Infrastruktur didukung oleh Docker Compose dengan isolasi service yang baik, memastikan deployment konsisten dan skalabilitas yang mudah.**
-
-> **Keseluruhan sistem telah diverifikasi sesuai dengan setiap requirement yang diberikan, dari teknologi frontend, backend, database, hingga container orchestration."**
-
----
-
-## 🎬 BAGIAN 5: TALKING POINTS UNTUK INTERVIEW
-
-### 1. **Mengapa React + CodeIgniter (hybrid approach)?**
-
-> "Saya memilih hybrid approach karena:
-> - CodeIgniter 4 merender halaman awal (entry point) yang ramping
-> - React digunakan untuk interaktivitas dan real-time updates setelah itu
-> - Ini memberikan yang terbaik dari kedua dunia: SEO-friendly dari CI4 dan UX modern dari React
-> - Arsitektur ini juga memudahkan API-first development untuk integrasi CKAN"
-
-### 2. **Bagaimana integrasi CKAN?**
-
-> "CKAN diakses melalui CodeIgniter API layer yang bertindak sebagai proxy. Alasan:
-> - Centralized authentication dan authorization
-> - Fleksibel untuk menambah business logic tanpa mengubah CKAN
-> - CORS handling lebih mudah
-> - Bisa implement custom validation sebelum forward ke CKAN"
-
-### 3. **JWT Implementation?**
-
-> "JWT digunakan karena:
-> - Stateless authentication (ideal untuk distributed system)
-> - Token-based, tidak perlu session storage di server
-> - Compatible dengan frontend SPA
-> - Bisa di-extend ke mobile app di masa depan tanpa perubahan besar"
-
-### 4. **Kenapa Docker?**
-
-> "Docker memastikan:
-> - Konsistensi antara development dan production environment
-> - Isolasi service yang jelas (CKAN, PostgreSQL, Solr, Redis berjalan independent)
-> - Easy scaling jika perlu (bisa add lebih banyak CKAN workers)
-> - Dependency management yang rapi tanpa 'works on my machine' problem"
-
----
-
-## 📋 CHECKLIST SIAP PRESENTASI
-
-- ✅ Sistem sudah 100% selaras requirement
-- ✅ Architecture explanation tersedia
-- ✅ Code evidence lengkap dari setiap layer
-- ✅ Flow diagram jelas (sudah dijelaskan di atas)
-- ✅ Talking points untuk interview tersedia
-- ✅ Professional statement siap digunakan
-- ✅ Teknologi choices justified dan reasonable
-
-**→ Kamu siap untuk presentasi, sidang, atau interview! 🚀**
-
----
-
-## 🔗 REFERENSI FILE
-
-```
-System Overview:
-├── /portal-frontend/src/App.jsx          (React routing)
-├── /portal-api/public/app                (Hasil build frontend React yang disajikan CI4)
-├── /portal-api/app/Controllers/Home.php  (HTML rendering)
-├── /portal-api/app/Views/home.php        (HTML template dengan Bootstrap)
-├── /portal-api/app/Controllers/Auth.php  (JWT implementation)
-├── /portal-api/app/Controllers/Dataset.php (CKAN integration)
-├── /docker-ckan/compose/docker-compose.yml (Container orchestration)
-└── /portal-api/Dockerfile                (PHP 8.2 + Apache setup)
+<div class="card hero-card">
+  <div class="row g-0">
+    <div class="col-lg-7">
+      <a href="/api/datasets" class="btn btn-light btn-lg">Lihat API Dataset</a>
+    </div>
+  </div>
+</div>
 ```
 
----
+## 8. Kesimpulan
 
-**Dibuat:** 28 Maret 2026
-**Status:** ✅ Approved Untuk Presentasi
-**Next Step:** Siap untuk sidang, interview, atau implementation lebih lanjut
+Secara implementasi, sistem sudah berbentuk portal data terpadu yang berjalan dengan baik di atas React + CodeIgniter 4 + CKAN. Tantangan terbesarnya bukan lagi arsitektur inti, tetapi sinkronisasi dokumentasi, konsolidasi routing frontend, dan pematangan sumber data untuk fitur yang masih lokal seperti publikasi.

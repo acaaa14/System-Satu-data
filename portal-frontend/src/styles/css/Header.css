@@ -11,6 +11,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  padding-inline: 10px;
 }
 
 .portal-header__brand img {
@@ -34,9 +35,16 @@
 .portal-header__nav a,
 .portal-header__nav-btn,
 .portal-header__nav-link {
+  display: inline-flex;
+  align-items: center;
   color: rgba(244, 247, 255, 0.95);
-  font-size: 0.92rem;
+  font-size: 0.98rem;
   font-weight: 500;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
 }
 
 .portal-header__nav a,
@@ -44,6 +52,7 @@
   text-decoration: none;
 }
 
+.portal-header__nav a,
 .portal-header__nav-btn,
 .portal-header__nav-link {
   border: 0;
@@ -53,15 +62,13 @@
   font: inherit;
 }
 
-.portal-header__nav-btn::after {
-  content: " ˅";
-  font-size: 0.75rem;
-}
+
 
 .portal-header__nav a.is-active,
 .portal-header__nav-btn.is-active,
 .portal-header__nav-link.is-active {
-  color: #0fbeff;
+  color: #12c3ff;
+  font-weight: 500;
 }
 
 .portal-header__actions {
@@ -95,7 +102,7 @@
 @media (max-width: 980px) {
   .portal-header__inner {
     min-height: auto;
-    padding: 16px 0;
+    padding: 16px 10px;
     flex-wrap: wrap;
   }
 

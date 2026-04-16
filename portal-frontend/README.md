@@ -1,16 +1,45 @@
-# React + Vite
+# Portal Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend portal dibangun dengan React + Vite dan dipakai untuk halaman publik maupun admin ringan.
 
-Currently, two official plugins are available:
+## Script
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+npm run build
+npm run build:portal
+npm run preview
+```
 
-## React Compiler
+## Fungsi Script
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `npm run dev`: menjalankan Vite dev server.
+- `npm run build`: build production standar.
+- `npm run build:portal`: build untuk dipakai backend CodeIgniter.
+- `npm run preview`: preview hasil build.
 
-## Expanding the ESLint configuration
+## Halaman Utama
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `Home`
+- `Organisasi`
+- `Topik`
+- `Publikasi`
+- `Search`
+- `Login`
+- `Admin`
+
+## File Penting
+
+- `src/App.jsx`: view switching berbasis path browser.
+- `src/utils/ckan.js`: akses API backend.
+- `src/utils/topics.js`: definisi topik.
+- `src/utils/publications.js`: util publikasi berbasis local storage.
+- `src/styles/`: seluruh styling halaman dan komponen.
+
+## Catatan Implementasi
+
+- Frontend production disajikan oleh CodeIgniter dari folder `portal-api/public/frontend`.
+- Untuk sinkronisasi ke backend, jalankan `npm run build:portal`.
+- Statistik di home mengambil gabungan data CKAN, definisi topik, dan publikasi lokal.
+

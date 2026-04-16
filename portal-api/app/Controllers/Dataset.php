@@ -22,6 +22,7 @@ class Dataset extends Controller
     {
         try {
 
+            // Semua request ke CKAN dipusatkan di helper ini agar timeout dan error handling konsisten.
             $client = \Config\Services::curlrequest([
                 "timeout" => 10
             ]);
@@ -32,6 +33,7 @@ class Dataset extends Controller
 
         } catch (\Throwable $e) {
 
+            // Jika CKAN gagal diakses, backend tetap mengembalikan JSON error yang mudah dibaca frontend.
             return [
                 "success" => false,
                 "error" => $e->getMessage()
@@ -49,7 +51,8 @@ class Dataset extends Controller
     public function index()
     {
 
-        $data = $this->requestCkan("/package_search");
+        // rows=1000 dipakai agar daftar dataset tidak berhenti di page pertama CKAN.
+        $data = $this->requestCkan("/package_search?rows=1000");
 
         return $this->response->setJSON($data);
 
@@ -64,6 +67,7 @@ class Dataset extends Controller
     public function show($id)
     {
 
+        // package_show dipakai untuk menampilkan detail lengkap satu dataset.
         $data = $this->requestCkan("/package_show?id=" . $id);
 
         return $this->response->setJSON($data);
@@ -81,7 +85,24 @@ class Dataset extends Controller
 
         $q = $this->request->getGet("q") ?? "";
 
-        $data = $this->requestCkan("/package_search?q=" . urlencode($q));
+        // Search tetap mengambil banyak hasil agar frontend bisa memfilter dan menampilkan data lebih lengkap.
+        $data = $this->requestCkan("/package_search?q=" . urlencode($q) . "&rows=1000");
+
+        return $this->response->setJSON($data);
+
+    }
+
+
+
+    // =============================
+    // LIST ORGANISASI
+    // =============================
+
+    public function organizations()
+    {
+
+        // Endpoint ini dipakai halaman Organisasi untuk menampilkan semua organisasi CKAN, termasuk yang 0 dataset.
+        $data = $this->requestCkan("/organization_list?all_fields=true&include_dataset_count=true");
 
         return $this->response->setJSON($data);
 
@@ -96,6 +117,7 @@ class Dataset extends Controller
     public function preview($resourceId)
     {
 
+        // Preview dibatasi 20 baris agar response tetap ringan saat ditampilkan di UI.
         $data = $this->requestCkan(
             "/datastore_search?resource_id=" .
             $resourceId .
