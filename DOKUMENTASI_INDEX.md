@@ -49,6 +49,19 @@ Pernyataan stack berikut sudah punya bukti langsung di codebase:
   Bukti backend mengambil data dari CKAN ada di [portal-api/app/Controllers/Dataset.php](/root/baru/portal-api/app/Controllers/Dataset.php:10), terutama `private $ckan = "http://ckan:5000/api/3/action";` dan helper `requestCkan()`.
   Bukti route API backend ada di [portal-api/app/Config/Routes.php](/root/baru/portal-api/app/Config/Routes.php:25).
 
+- `Login admin langsung ke CKAN`
+  Bukti frontend mengarahkan login ke CKAN ada di [portal-frontend/src/components/Header.jsx](/root/baru/portal-frontend/src/components/Header.jsx:2) dan [portal-frontend/src/pages/Admin.jsx](/root/baru/portal-frontend/src/pages/Admin.jsx:3), karena keduanya memakai `CKAN_LOGIN_URL`.
+  Bukti sinkronisasi session CKAN ke token portal ada di [portal-frontend/src/pages/Login.jsx](/root/baru/portal-frontend/src/pages/Login.jsx:7) dan [portal-api/app/Controllers/Auth.php](/root/baru/portal-api/app/Controllers/Auth.php:96).
+
+- `Publikasi diambil dari CKAN`
+  Bukti endpoint publikasi ada di [portal-api/app/Config/Routes.php](/root/baru/portal-api/app/Config/Routes.php:25) pada route `GET /api/publications`.
+  Bukti implementasi backend ada di [portal-api/app/Controllers/Dataset.php](/root/baru/portal-api/app/Controllers/Dataset.php:145).
+  Bukti halaman frontend membaca dari backend ada di [portal-frontend/src/pages/Publikasi.jsx](/root/baru/portal-frontend/src/pages/Publikasi.jsx:3).
+
+- `Topik tetap 5 kategori utama, tetapi isinya dari CKAN`
+  Bukti definisi lima topik ada di [portal-frontend/src/utils/topics.js](/root/baru/portal-frontend/src/utils/topics.js:7).
+  Bukti halaman `Topik` mengambil data dari CKAN lalu memasangkannya ke definisi itu ada di [portal-frontend/src/pages/Topik.jsx](/root/baru/portal-frontend/src/pages/Topik.jsx:2).
+
 - `Data Platform: CKAN`
   Bukti service CKAN ada di [docker-ckan/compose/services/ckan/ckan.yaml](/root/baru/docker-ckan/compose/services/ckan/ckan.yaml:3), dengan image `ghcr.io/keitaroinc/ckan:${CKAN_VERSION}`.
 

@@ -10,7 +10,7 @@ Browser
 CodeIgniter 4
   ├─ Frontend::index  -> kirim build React
   ├─ Dataset controller -> proxy ke CKAN
-  ├─ Auth controller -> login admin
+  ├─ Auth controller -> sinkronisasi login CKAN
   └─ Visitor controller -> counter pengunjung
   │
   │ request data
@@ -55,13 +55,13 @@ User
 ## Diagram 3: Alur Data Halaman Publik
 
 ```text
-Home / Organisasi / Topik / Search
+Home / Organisasi / Topik / Search / Publikasi
           │
           ▼
 portal-frontend/src/utils/ckan.js
           │
           ▼
-/api/datasets | /api/organizations | /api/search | /api/preview/:id
+/api/datasets | /api/organizations | /api/topics | /api/publications | /api/search | /api/preview/:id
           │
           ▼
 portal-api/app/Controllers/Dataset.php
@@ -75,19 +75,75 @@ CKAN API
 ```text
 Publikasi page
    │
-   ├─ readPublications()
-   ├─ sortPublications()
+   ├─ fetchPublications()
+   ├─ map data CKAN ke tabel publikasi
    └─ filter category/year/title
    │
    ▼
-Local storage browser
+GET /api/publications
+   │
+   ▼
+Dataset::publications
+   │
+   ▼
+CKAN package_search (group publikasi/topik)
 ```
 
 Catatan:
-- publikasi belum diambil dari backend,
-- data dan lampiran masih dikelola di sisi frontend/admin flow.
+- data publikasi utama sekarang berasal dari CKAN,
+- frontend tetap merapikan format kategori, tahun, gambar, dan lampiran sebelum dirender.
 
-## Diagram 5: Visitor Counter
+## Diagram 5: Alur Topik
+
+```text
+Topik page
+   │
+   ├─ topicDefinitions (5 topik utama tetap)
+   ├─ fetchTopics()
+   └─ padankan data CKAN ke topik tetap
+   │
+   ▼
+GET /api/topics
+   │
+   ▼
+Dataset::topics
+   │
+   ▼
+CKAN package_search -> ambil organisasi pemilik dataset di group topik
+```
+
+Catatan:
+- lima topik utama tetap ada di UI,
+- isi kartu topik mengikuti data CKAN yang cocok.
+
+## Diagram 6: Alur Login Admin
+
+```text
+Klik Login / akses Admin tanpa token
+   │
+   ▼
+Redirect ke CKAN_LOGIN_URL
+   │
+   ▼
+CKAN login page
+   │
+   ▼
+Kembali ke /login?sync=ckan
+   │
+   ▼
+POST /api/auth/ckan/sync
+   │
+   ▼
+Auth::syncCkanSession
+   │
+   ▼
+JWT portal disimpan di browser
+   │
+   ▼
+/admin
+```
+
+## Diagram 7: Visitor Counter
 
 ```text
 Frontend
@@ -101,4 +157,3 @@ Visitor.php
           ▼
 portal-api/writable/analytics/visitors.sqlite3
 ```
-

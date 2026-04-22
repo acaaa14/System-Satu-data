@@ -12,7 +12,8 @@ class Dataset extends Controller
 
     // tambahan supaya kode lama tetap jalan
     private $ckanUrl = "http://ckan:5000/api/3/action";
-    private $publicationGroup = "topik";
+    private $topicGroup = "topik";
+    private $publicationGroup = "publikasi";
     private $organizationExcludedGroup = "publikasi";
 
 
@@ -173,7 +174,7 @@ class Dataset extends Controller
 
         // Halaman Topik versi murni CKAN mengambil organisasi yang menjadi pemilik
         // dataset di group `topik`. Kalau data di CKAN dihapus, item di portal ikut hilang.
-        $organizationNames = $this->getOrganizationNamesFromGroup($this->publicationGroup);
+        $organizationNames = $this->getOrganizationNamesFromGroup($this->topicGroup);
 
         $topicOrganizations = [];
 
@@ -211,7 +212,7 @@ class Dataset extends Controller
     public function publications()
     {
 
-        // Halaman Publikasi portal mengambil dataset yang berada di group CKAN `topik`.
+        // Halaman Publikasi portal mengambil dataset yang berada di group CKAN `publikasi`.
         $data = $this->requestCkan(
             "/package_search?rows=1000&fq=" . urlencode('groups:' . $this->publicationGroup)
         );

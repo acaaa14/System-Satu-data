@@ -1,20 +1,9 @@
 import { useEffect, useState } from "react"
 import cityLogo from "../assets/img/LogoKotaTangerang.png"
+import calendarIcon from "../assets/img/kalender.png"
 import { fetchOrganizations, fetchPublications } from "../utils/ckan"
-import { isTopicOrganization } from "../utils/topics"
+import { normalizePortalOrganizations } from "../utils/portalSections"
 import "../styles/pages/organisasi.css"
-
-// Beberapa payload organisasi CKAN bisa membawa relasi group.
-// Helper ini dipakai sebagai filter cepat saat field `groups` memang tersedia.
-function isPublikasiGroupOrganization(organization) {
-  return (organization?.groups || []).some((group) => {
-    const value = String(group?.name || group?.title || group?.display_name || "")
-      .toLowerCase()
-      .trim()
-
-    return value === "publikasi"
-  })
-}
 
 // Mengubah tanggal dari CKAN ke format Indonesia agar lebih mudah dibaca.
 function formatOrgDate(value) {
@@ -54,52 +43,7 @@ export default function Organisasi() {
           fetchPublications(),
         ])
 
-        // Organisasi yang dipakai oleh dataset publikasi juga kita blacklist di halaman Organisasi
-        // supaya item yang sudah muncul di halaman Publikasi tidak dobel tampil di sini.
-        const excludedPublicationKeys = new Set(
-          publicationResult.flatMap((dataset) => (
-            [
-              dataset.organization?.name,
-              dataset.organization?.title,
-              dataset.organization?.display_name,
-              dataset.name,
-              dataset.title,
-            ]
-          ))
-            .filter(Boolean)
-            .map((value) => String(value).toLowerCase().trim()),
-        )
-
-        excludedPublicationKeys.add("publikasi")
-
-        const normalized = organizationResult
-          .filter((organization) => !isPublikasiGroupOrganization(organization))
-          // Normalisasi ini menjaga tampilan tetap stabil meskipun beberapa field CKAN kosong.
-          .map((organization) => ({
-            id: organization.id || organization.name || organization.title,
-            title: organization.title || organization.display_name || organization.name || "Tanpa nama organisasi",
-            name: organization.name || "-",
-            packageCount: organization.package_count ?? 0,
-            updatedAt: organization.metadata_modified || organization.created || null,
-            imageUrl: organization.image_display_url || organization.image_url || "",
-          }))
-          .filter((organization) => organization.id)
-          // Filter ini jadi pagar kedua ketika organisasi tidak punya relasi group yang lengkap,
-          // tapi namanya sudah terdeteksi sebagai bagian dari data publikasi.
-          .filter((organization) => {
-            const keys = [
-              organization.name,
-              organization.title,
-            ]
-              .filter(Boolean)
-              .map((value) => String(value).toLowerCase().trim())
-
-            return !keys.some((key) => excludedPublicationKeys.has(key))
-          })
-          // Organisasi yang dipakai sebagai topik khusus tidak ditampilkan lagi di halaman Organisasi
-          // agar tidak dobel dengan halaman Topik.
-          .filter((organization) => !isTopicOrganization(organization))
-          .sort((left, right) => left.title.localeCompare(right.title))
+        const normalized = normalizePortalOrganizations(organizationResult, publicationResult)
 
         if (isMounted) {
           setOrganizations(normalized)
@@ -146,10 +90,7 @@ export default function Organisasi() {
 
       <section className="organisasi-listing">
         <div className="container organisasi-listing__inner">
-          {/* Ringkasan status data di bagian atas daftar organisasi. */}
-          <div className="organisasi-listing__intro">
-            <p>{loading ? "Memuat organisasi..." : `${organizations.length} organisasi ditampilkan dari CKAN`}</p>
-          </div>
+          
 
           {error ? <div className="organisasi-state">{error}</div> : null}
 
@@ -179,7 +120,7 @@ export default function Organisasi() {
                     </span>
                     <span className="organisasi-card__divider" aria-hidden="true" />
                     <span className="organisasi-card__meta-item">
-                      <i aria-hidden="true">◫</i>
+                      <img className="organisasi-card__meta-icon" src={calendarIcon} alt="" aria-hidden="true" />
                       {formatOrgDate(organization.updatedAt)}
                     </span>
                   </div>

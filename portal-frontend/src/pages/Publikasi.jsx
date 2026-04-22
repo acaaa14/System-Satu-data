@@ -272,7 +272,7 @@ export default function Publikasi() {
 
               {!error && !loading && paginated.length === 0 ? (
                 <div className="publikasi-table__empty">
-                  Belum ada publikasi CKAN dari group `topik` yang cocok dengan filter.
+                  Belum ada publikasi CKAN dari group `publikasi` yang cocok dengan filter.
                 </div>
               ) : null}
 

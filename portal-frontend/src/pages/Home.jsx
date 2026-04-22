@@ -11,8 +11,8 @@ import ekonomiImage from "../assets/img/GambarEkonomi.png"
 import sosialImage from "../assets/img/GambarSosialBudaya.png"
 import covidImage from "../assets/img/GambarCovid-19.png"
 import { topicDefinitions } from "../utils/topics"
-import { readPublications, sortPublications } from "../utils/publications"
-import { fetchDatasets, fetchOrganizations } from "../utils/ckan"
+import { fetchDatasets, fetchOrganizations, fetchPublications } from "../utils/ckan"
+import { normalizePortalOrganizations } from "../utils/portalSections"
 import "../styles/pages/home.css"
 
 const topics = [
@@ -49,9 +49,7 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
   const [searchOpen, setSearchOpen] = useState(false)
   const [datasetsCount, setDatasetsCount] = useState(0)
   const [organizations, setOrganizations] = useState([])
-  const [publications, setPublications] = useState(() =>
-    sortPublications(readPublications()),
-  )
+  const [publications, setPublications] = useState([])
   const [activeDatasetTitle, setActiveDatasetTitle] = useState("")
   const [activeTopicLabel, setActiveTopicLabel] = useState("")
   const [activeStatLabel, setActiveStatLabel] = useState("")
@@ -64,19 +62,22 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
 
     async function loadPortalSummary() {
       try {
-        const [datasetResult, organizationResult] = await Promise.all([
+        const [datasetResult, organizationResult, publicationResult] = await Promise.all([
           fetchDatasets(),
           fetchOrganizations(),
+          fetchPublications(),
         ])
 
         if (isMounted) {
           setDatasetsCount(datasetResult.length)
-          setOrganizations(organizationResult)
+          setOrganizations(normalizePortalOrganizations(organizationResult, publicationResult))
+          setPublications(publicationResult)
         }
       } catch {
         if (isMounted) {
           setDatasetsCount(0)
           setOrganizations([])
+          setPublications([])
         }
       }
     }
@@ -86,12 +87,6 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
     return () => {
       isMounted = false
     }
-  }, [])
-
-  useEffect(() => {
-    const syncPublications = () => setPublications(sortPublications(readPublications()))
-    window.addEventListener("portal-publications-updated", syncPublications)
-    return () => window.removeEventListener("portal-publications-updated", syncPublications)
   }, [])
 
   const stats = useMemo(() => ([
@@ -147,11 +142,18 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
 
     const publicationResults = publications
       .filter((publication) => {
+        const tagText = (publication.tags || [])
+          .map((tag) => tag.display_name || tag.name)
+          .filter(Boolean)
+          .join(" ")
         const haystack = [
           publication.title,
+          publication.name,
           publication.description,
+          publication.notes,
           publication.category,
           publication.year,
+          tagText,
         ]
           .filter(Boolean)
           .join(" ")
@@ -163,8 +165,8 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
       .map((publication) => ({
         id: `publication-${publication.id}`,
         type: "Publikasi",
-        title: publication.title,
-        description: `${publication.category || "Proposal Publikasi"} • ${publication.year || "-"}`,
+        title: publication.title || publication.name || "Tanpa Judul",
+        description: publication.notes || "Publikasi CKAN",
         action: () => {
           onPublikasiClick?.()
           window.scrollTo({ top: 0, behavior: "smooth" })
@@ -188,8 +190,8 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
       .map((organization) => ({
         id: `organization-${organization.id || organization.name}`,
         type: "Organisasi",
-        title: organization.title || organization.display_name || organization.name || "Tanpa nama organisasi",
-        description: `${organization.package_count ?? 0} dataset tersedia`,
+        title: organization.title,
+        description: `${organization.packageCount} dataset tersedia`,
         action: () => {
           onOrganisasiClick?.()
           window.scrollTo({ top: 0, behavior: "smooth" })
@@ -310,7 +312,7 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
         <div className="container">
           <span className="section-badge">Fitur Unggulan</span>
           <h2>
-            Telusuri Berdasarkan Berdasarkan
+            Telusuri Berdasarkan
             <br />
             Group Atau Topik
           </h2>

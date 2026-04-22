@@ -171,6 +171,13 @@
   font-size: 1rem;
 }
 
+.organisasi-card__meta-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
 .organisasi-card__divider {
   width: 1px;
   height: 18px;
