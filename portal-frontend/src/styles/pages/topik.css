@@ -49,6 +49,21 @@
   color: rgba(240, 244, 255, 0.92);
 }
 
+.topik-breadcrumb-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.topik-breadcrumb-link:hover,
+.topik-breadcrumb-link:focus-visible {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
 .topik-hero p span {
   margin: 0 8px;
 }

@@ -31,6 +31,7 @@ class Filters extends BaseFilters
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
         'cors' => \CodeIgniter\Filters\Cors::class,
+        'jwt'           => \App\Filters\JwtFilter::class,
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,

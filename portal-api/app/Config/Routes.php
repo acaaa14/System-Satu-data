@@ -24,6 +24,8 @@ $routes->get('app/(:any)', 'Home::index/$1');
 
 // Endpoint API tetap ditangani backend CodeIgniter untuk integrasi ke CKAN dan autentikasi JWT.
 $routes->get('api/datasets', 'Dataset::index');
+$routes->get('api/publications', 'Dataset::publications');
+$routes->get('api/topics', 'Dataset::topics');
 // Endpoint organisasi dipakai khusus untuk halaman daftar organisasi di frontend.
 $routes->get('api/organizations', 'Dataset::organizations');
 $routes->get('api/dataset/(:segment)', 'Dataset::show/$1');
@@ -32,6 +34,7 @@ $routes->get('api/preview/(:segment)', 'Dataset::preview/$1');
 $routes->get('api/visitors', 'Visitor::show');
 $routes->post('api/visitors/increment', 'Visitor::increment');
 $routes->post('api/login', 'Auth::login');
+$routes->post('api/auth/ckan/sync', 'Auth::syncCkanSession');
 
 // Route admin berikut diproteksi JWT karena dipakai untuk operasi pengelolaan dataset.
 $routes->post('api/admin/dataset', 'Dataset::create', ['filter'=>'jwt']);

@@ -1,41 +1,41 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import axios from "axios"
 import API_BASE_URL from "../utils/api"
 import logoPortal from "../assets/img/logologin.png"
 import logoKominfo from "../assets/img/logokominfo.png"
 import cityLogo from "../assets/img/LogoKotaTangerang.png"
+import { CKAN_LOGIN_URL } from "../utils/ckanAuth"
 import "../styles/pages/login.css"
 
 function Login() {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(true)
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [statusMessage, setStatusMessage] = useState("Mengarahkan ke login CKAN...")
 
-  const handleLogin = (event) => {
-    event.preventDefault()
-    setLoading(true)
-    setError("")
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const shouldSync = params.get("sync") === "ckan"
+
+    if (!shouldSync) {
+      window.location.href = CKAN_LOGIN_URL
+      return
+    }
+
+    setStatusMessage("Memverifikasi session CKAN dan menyinkronkan akses portal...")
 
     axios
-      .post(`${API_BASE_URL}/api/login`, {
-        username,
-        password,
-        rememberMe,
-      })
-      .then((res) => {
-        localStorage.setItem("token", res.data.token)
-        window.location.href = "/admin"
+      .post(`${API_BASE_URL}/api/auth/ckan/sync`)
+      .then((response) => {
+        if (response.data?.token) {
+          localStorage.setItem("token", response.data.token)
+          window.location.href = "/admin"
+          return
+        }
+
+        setStatusMessage("Session CKAN tidak berhasil disinkronkan. Silakan login ulang.")
       })
       .catch(() => {
-        setError("Login gagal. Periksa kembali username dan password Anda.")
+        setStatusMessage("Session CKAN belum valid. Silakan login ulang melalui CKAN.")
       })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
+  }, [])
 
   return (
     <section className="login-page">
@@ -45,49 +45,20 @@ function Login() {
       <div className="login-page__inner">
         <img src={logoPortal} alt="Tangerang Satu Data" className="login-page__logo" />
 
-        <form className="login-panel" onSubmit={handleLogin}>
-          <label className="login-field">
-            <input
-              className="login-field__input"
-              placeholder="Masukkan NIP ..."
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-            />
-          </label>
-
-          <label className="login-field login-field--password">
-            <input
-              type={showPassword ? "text" : "password"}
-              className="login-field__input"
-              placeholder="Masukkan Password ..."
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-            <button
-              type="button"
-              className="login-field__toggle"
-              aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
-              onClick={() => setShowPassword((current) => !current)}
-            >
-              {showPassword ? "🙈" : "◔"}
-            </button>
-          </label>
-
-          <label className="login-remember">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(event) => setRememberMe(event.target.checked)}
-            />
-            <span>Ingat Saya</span>
-          </label>
-
-          {error ? <div className="login-error">{error}</div> : null}
-
-          <button className="login-submit" type="submit" disabled={loading}>
-            {loading ? "Memproses..." : "Masuk"}
+        <div className="login-panel">
+          <p className="login-error" style={{ marginBottom: 16 }}>
+            {statusMessage}
+          </p>
+          <button
+            className="login-submit"
+            type="button"
+            onClick={() => {
+              window.location.href = CKAN_LOGIN_URL
+            }}
+          >
+            Buka Login CKAN
           </button>
-        </form>
+        </div>
 
         <div className="login-page__footer">
           <p>

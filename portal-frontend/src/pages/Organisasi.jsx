@@ -1,8 +1,20 @@
 import { useEffect, useState } from "react"
 import cityLogo from "../assets/img/LogoKotaTangerang.png"
-import { fetchOrganizations } from "../utils/ckan"
+import { fetchOrganizations, fetchPublications } from "../utils/ckan"
 import { isTopicOrganization } from "../utils/topics"
 import "../styles/pages/organisasi.css"
+
+// Beberapa payload organisasi CKAN bisa membawa relasi group.
+// Helper ini dipakai sebagai filter cepat saat field `groups` memang tersedia.
+function isPublikasiGroupOrganization(organization) {
+  return (organization?.groups || []).some((group) => {
+    const value = String(group?.name || group?.title || group?.display_name || "")
+      .toLowerCase()
+      .trim()
+
+    return value === "publikasi"
+  })
+}
 
 // Mengubah tanggal dari CKAN ke format Indonesia agar lebih mudah dibaca.
 function formatOrgDate(value) {
@@ -37,8 +49,31 @@ export default function Organisasi() {
       setError("")
 
       try {
-        const result = await fetchOrganizations()
-        const normalized = result
+        const [organizationResult, publicationResult] = await Promise.all([
+          fetchOrganizations(),
+          fetchPublications(),
+        ])
+
+        // Organisasi yang dipakai oleh dataset publikasi juga kita blacklist di halaman Organisasi
+        // supaya item yang sudah muncul di halaman Publikasi tidak dobel tampil di sini.
+        const excludedPublicationKeys = new Set(
+          publicationResult.flatMap((dataset) => (
+            [
+              dataset.organization?.name,
+              dataset.organization?.title,
+              dataset.organization?.display_name,
+              dataset.name,
+              dataset.title,
+            ]
+          ))
+            .filter(Boolean)
+            .map((value) => String(value).toLowerCase().trim()),
+        )
+
+        excludedPublicationKeys.add("publikasi")
+
+        const normalized = organizationResult
+          .filter((organization) => !isPublikasiGroupOrganization(organization))
           // Normalisasi ini menjaga tampilan tetap stabil meskipun beberapa field CKAN kosong.
           .map((organization) => ({
             id: organization.id || organization.name || organization.title,
@@ -49,6 +84,18 @@ export default function Organisasi() {
             imageUrl: organization.image_display_url || organization.image_url || "",
           }))
           .filter((organization) => organization.id)
+          // Filter ini jadi pagar kedua ketika organisasi tidak punya relasi group yang lengkap,
+          // tapi namanya sudah terdeteksi sebagai bagian dari data publikasi.
+          .filter((organization) => {
+            const keys = [
+              organization.name,
+              organization.title,
+            ]
+              .filter(Boolean)
+              .map((value) => String(value).toLowerCase().trim())
+
+            return !keys.some((key) => excludedPublicationKeys.has(key))
+          })
           // Organisasi yang dipakai sebagai topik khusus tidak ditampilkan lagi di halaman Organisasi
           // agar tidak dobel dengan halaman Topik.
           .filter((organization) => !isTopicOrganization(organization))
@@ -82,7 +129,16 @@ export default function Organisasi() {
           <div>
             <h1>Organisasi</h1>
             <p>
-              Home <span>/</span> <strong>Organisasi</strong>
+              <button
+                type="button"
+                className="organisasi-breadcrumb-link"
+                onClick={() => {
+                  window.location.href = "/"
+                }}
+              >
+                Home
+              </button>
+              <span>/</span> <strong>Organisasi</strong>
             </p>
           </div>
         </div>

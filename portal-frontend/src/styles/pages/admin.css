@@ -46,6 +46,42 @@
   color: #5b6782;
 }
 
+.admin-auth-status {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(18, 36, 81, 0.06);
+  border: 1px solid #d8e2f0;
+}
+
+.admin-auth-status span,
+.admin-auth-status small,
+.admin-auth-status strong {
+  display: inline;
+  margin: 0;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.admin-auth-status span {
+  color: #5f6d88;
+  font-size: 0.88rem;
+}
+
+.admin-auth-status strong {
+  color: #122451;
+  font-size: 0.94rem;
+}
+
+.admin-auth-status small {
+  color: #70809d;
+  font-size: 0.82rem;
+}
+
 .admin-hero__actions {
   display: flex;
   gap: 10px;

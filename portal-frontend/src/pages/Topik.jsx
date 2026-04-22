@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { fetchOrganizations } from "../utils/ckan"
+import { fetchTopics } from "../utils/ckan"
 import { getTopicMatchKey, topicDefinitions } from "../utils/topics"
 import "../styles/pages/topik.css"
 
@@ -33,7 +33,7 @@ export default function Topik() {
       setError("")
 
       try {
-        const result = await fetchOrganizations()
+        const result = await fetchTopics()
 
         if (isMounted) {
           setOrganizations(result)
@@ -58,10 +58,12 @@ export default function Topik() {
   }, [])
 
   const topics = useMemo(() => {
+    // Lima topik utama tetap selalu ada di UI, tetapi isi datanya tetap diambil dari CKAN.
     const grouped = new Map()
 
     for (const definition of topicDefinitions) {
       grouped.set(definition.key, {
+        id: definition.key,
         title: definition.title,
         image: definition.fallbackImage,
         datasetCount: 0,
@@ -71,8 +73,6 @@ export default function Topik() {
     }
 
     for (const organization of organizations) {
-      // Di sini organisasi CKAN dicocokkan ke daftar topik tetap:
-      // pemerintah, infrastruktur, ekonomi, sosial budaya, dan covid-19.
       const matchKey = getTopicMatchKey(organization)
 
       if (!matchKey || !grouped.has(matchKey)) {
@@ -85,6 +85,7 @@ export default function Topik() {
 
       grouped.set(matchKey, {
         ...current,
+        id: organization.id || organization.name || matchKey,
         title: organization.title || organization.display_name || current.title,
         image: imageUrl || current.image,
         datasetCount: organization.package_count ?? current.datasetCount,
@@ -105,7 +106,16 @@ export default function Topik() {
           <div>
             <h1>Topik</h1>
             <p>
-              Home <span>/</span> <strong>Topik</strong>
+              <button
+                type="button"
+                className="topik-breadcrumb-link"
+                onClick={() => {
+                  window.location.href = "/"
+                }}
+              >
+                Home
+              </button>
+              <span>/</span> <strong>Topik</strong>
             </p>
           </div>
         </div>
@@ -119,7 +129,7 @@ export default function Topik() {
           {!error && !loading ? (
             <div className="topik-grid">
               {topics.map((topic) => (
-                <article className="topik-card" key={topic.title}>
+                <article className="topik-card" key={topic.id}>
                   <div className="topik-card__thumb">
                     <img src={topic.image} alt={topic.title} />
                   </div>

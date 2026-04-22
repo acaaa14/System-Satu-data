@@ -26,6 +26,19 @@ export async function fetchDatasets(search = "") {
   return result?.results || []
 }
 
+// Mengambil dataset CKAN yang difilter backend ke group publikasi portal.
+export async function fetchPublications() {
+  const response = await api.get("/api/publications")
+  const result = getResultPayload(response)
+  return result?.results || []
+}
+
+// Mengambil topik yang benar-benar berasal dari group CKAN `topik`.
+export async function fetchTopics() {
+  const response = await api.get("/api/topics")
+  return getResultPayload(response) || []
+}
+
 // Mengambil seluruh organisasi dari CKAN, termasuk yang belum punya dataset.
 export async function fetchOrganizations() {
   const response = await api.get("/api/organizations")

@@ -1,4 +1,5 @@
 import logoPortal from "../assets/img/logologin.png"
+import { CKAN_LOGIN_URL } from "../utils/ckanAuth"
 import "../styles/css/Header.css"
 
 export default function Header({
@@ -66,7 +67,13 @@ export default function Header({
           <button className="portal-header__search" type="button" aria-label="Cari">
             ⌕
           </button>
-          <button className="portal-header__login" type="button" onClick={() => { window.location.href = "/login" }}>
+          <button
+            className="portal-header__login"
+            type="button"
+            onClick={() => {
+              window.location.href = CKAN_LOGIN_URL
+            }}
+          >
             Login
           </button>
         </div>

@@ -51,6 +51,21 @@
   font-weight: 500;
 }
 
+.organisasi-breadcrumb-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.organisasi-breadcrumb-link:hover,
+.organisasi-breadcrumb-link:focus-visible {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
 .organisasi-hero p span {
   color: rgba(237, 244, 255, 0.72);
   margin-inline: 6px;

@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useEffect, useMemo, useState } from "react"
 import API_BASE_URL from "../utils/api"
+import { CKAN_LOGIN_URL } from "../utils/ckanAuth"
 import {
   getDatasetKey,
   mergeDatasetsWithSettings,
@@ -59,6 +60,34 @@ function formatDate(value) {
   }).format(date)
 }
 
+function readPortalTokenUser() {
+  const token = localStorage.getItem("token")
+
+  if (!token) {
+    return null
+  }
+
+  try {
+    const [, payload] = token.split(".")
+
+    if (!payload) {
+      return null
+    }
+
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/")
+    const decoded = JSON.parse(window.atob(normalized))
+
+    return {
+      username: decoded.user || "-",
+      displayName: decoded.display_name || decoded.user || "-",
+      provider: decoded.provider || "portal",
+      source: decoded.identity_source || decoded.source || "unknown",
+    }
+  } catch {
+    return null
+  }
+}
+
 function Admin() {
   const [datasets, setDatasets] = useState([])
   const [search, setSearch] = useState("")
@@ -75,13 +104,17 @@ function Admin() {
   const [publicationSubmitting, setPublicationSubmitting] = useState(false)
   const [publicationError, setPublicationError] = useState("")
   const [publicationSuccess, setPublicationSuccess] = useState("")
+  const [portalUser, setPortalUser] = useState(() => readPortalTokenUser())
 
   useEffect(() => {
     const token = localStorage.getItem("token")
 
     if (!token) {
-      window.location.href = "/login"
+      window.location.href = CKAN_LOGIN_URL
+      return
     }
+
+    setPortalUser(readPortalTokenUser())
   }, [])
 
   const loadDatasets = () => {
@@ -357,6 +390,13 @@ function Admin() {
             Kelola dataset CKAN, atur prioritas konten portal, dan tambahkan proposal publikasi
             agar langsung muncul di halaman publikasi portal.
           </p>
+          {portalUser ? (
+            <div className="admin-auth-status">
+              <span>Login sebagai</span>
+              <strong>{portalUser.displayName}</strong>
+              <small>{portalUser.provider} • {portalUser.source}</small>
+            </div>
+          ) : null}
         </div>
 
         <div className="admin-hero__actions">
