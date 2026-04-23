@@ -85,7 +85,7 @@ export default function Organisasi() {
               <span>/</span> <strong>Organisasi</strong>
             </p>
           </div>
-        </div>
+        </div>  
       </section>
 
       <section className="organisasi-listing">

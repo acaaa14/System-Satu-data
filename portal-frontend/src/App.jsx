@@ -86,7 +86,7 @@ function App() {
         onTopikClick={showTopik}
       />
       {viewMode === "logo"
-        ? <HomeLogo />
+        ? <HomeLogo onSearchNavigate={showSearch} />
         : viewMode === "organisasi"
           ? <Organisasi />
           : viewMode === "publikasi"

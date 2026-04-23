@@ -15,6 +15,7 @@ class Dataset extends Controller
     private $topicGroup = "topik";
     private $publicationGroup = "publikasi";
     private $organizationExcludedGroup = "publikasi";
+    private $publicationCacheFile = "publications-cache.json";
 
 
     // =============================
@@ -49,8 +50,9 @@ class Dataset extends Controller
     {
         // Helper ini membaca semua dataset di satu group CKAN lalu mengumpulkan
         // nama organisasi pemilik dataset tersebut.
+        $resolvedGroupName = $this->resolveGroupName($groupName);
         $groupDatasets = $this->requestCkan(
-            "/package_search?rows=1000&fq=" . urlencode('groups:' . $groupName)
+            "/package_search?rows=1000&fq=" . urlencode('groups:' . $resolvedGroupName)
         );
 
         if (
@@ -74,6 +76,201 @@ class Dataset extends Controller
         }
 
         return array_values(array_unique($organizationNames));
+    }
+
+    private function resolveGroupName(string $groupLabel): string
+    {
+        $groups = $this->requestCkan("/group_list?all_fields=true");
+
+        if (($groups['success'] ?? false) !== true || ! is_array($groups['result'] ?? null)) {
+            return $groupLabel;
+        }
+
+        $needle = $this->normalizeTextValue($groupLabel);
+
+        foreach ($groups['result'] as $group) {
+            if (! is_array($group)) {
+                continue;
+            }
+
+            $aliases = [
+                $group['name'] ?? '',
+                $group['title'] ?? '',
+                $group['display_name'] ?? '',
+            ];
+
+            foreach ($aliases as $alias) {
+                if ($this->normalizeTextValue($alias) === $needle) {
+                    return (string) ($group['name'] ?? $groupLabel);
+                }
+            }
+        }
+
+        return $groupLabel;
+    }
+
+    private function emptyPackageSearchResult(): array
+    {
+        return [
+            'success' => true,
+            'result' => [
+                'count' => 0,
+                'results' => [],
+            ],
+        ];
+    }
+
+    private function getPackageSearchResults(array $data): array
+    {
+        if (
+            ($data['success'] ?? false) !== true ||
+            ! isset($data['result']['results']) ||
+            ! is_array($data['result']['results'])
+        ) {
+            return [];
+        }
+
+        return $data['result']['results'];
+    }
+
+    private function normalizeTextValue($value): string
+    {
+        return strtolower(trim((string) $value));
+    }
+
+    private function datasetMatchesPublication(array $dataset): bool
+    {
+        $values = [
+            $dataset['name'] ?? '',
+            $dataset['title'] ?? '',
+            $dataset['notes'] ?? '',
+            $dataset['organization']['name'] ?? '',
+            $dataset['organization']['title'] ?? '',
+            $dataset['organization']['display_name'] ?? '',
+        ];
+
+        foreach (($dataset['groups'] ?? []) as $group) {
+            $values[] = $group['name'] ?? '';
+            $values[] = $group['title'] ?? '';
+            $values[] = $group['display_name'] ?? '';
+        }
+
+        foreach (($dataset['tags'] ?? []) as $tag) {
+            $values[] = $tag['name'] ?? '';
+            $values[] = $tag['display_name'] ?? '';
+        }
+
+        foreach ($values as $value) {
+            if (strpos($this->normalizeTextValue($value), $this->publicationGroup) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function mergeUniqueDatasets(array ...$datasetGroups): array
+    {
+        $merged = [];
+        $seen = [];
+
+        foreach ($datasetGroups as $datasets) {
+            foreach ($datasets as $dataset) {
+                if (! is_array($dataset)) {
+                    continue;
+                }
+
+                $key = (string) ($dataset['id'] ?? $dataset['name'] ?? '');
+
+                if ($key === '' || isset($seen[$key])) {
+                    continue;
+                }
+
+                $seen[$key] = true;
+                $merged[] = $dataset;
+            }
+        }
+
+        return $merged;
+    }
+
+    private function enrichPublicationOrganizations(array $datasets): array
+    {
+        $organizationCache = [];
+
+        foreach ($datasets as $index => $dataset) {
+            $organizationName = $dataset['organization']['name'] ?? null;
+
+            if (! $organizationName) {
+                continue;
+            }
+
+            if (! array_key_exists($organizationName, $organizationCache)) {
+                $organizationData = $this->requestCkan(
+                    "/organization_show?id=" . urlencode((string) $organizationName)
+                );
+
+                $organizationCache[$organizationName] =
+                    (($organizationData['success'] ?? false) === true && is_array($organizationData['result'] ?? null))
+                        ? $organizationData['result']
+                        : null;
+            }
+
+            if (! is_array($organizationCache[$organizationName])) {
+                continue;
+            }
+
+            $datasets[$index]['organization'] = array_merge(
+                $dataset['organization'] ?? [],
+                $organizationCache[$organizationName]
+            );
+        }
+
+        return $datasets;
+    }
+
+    private function buildPackageSearchResponse(array $datasets, array $baseResponse = []): array
+    {
+        $response = $baseResponse ?: $this->emptyPackageSearchResult();
+        $response['success'] = true;
+        $response['result'] = is_array($response['result'] ?? null)
+            ? $response['result']
+            : [];
+        $response['result']['count'] = count($datasets);
+        $response['result']['results'] = array_values($datasets);
+
+        return $response;
+    }
+
+    private function publicationCachePath(): string
+    {
+        return WRITEPATH . 'cache/' . $this->publicationCacheFile;
+    }
+
+    private function readPublicationCache(): ?array
+    {
+        $path = $this->publicationCachePath();
+
+        if (! is_file($path)) {
+            return null;
+        }
+
+        $cached = json_decode((string) file_get_contents($path), true);
+
+        if (! is_array($cached)) {
+            return null;
+        }
+
+        return $cached;
+    }
+
+    private function writePublicationCache(array $data): void
+    {
+        if (! is_dir(WRITEPATH . 'cache')) {
+            return;
+        }
+
+        file_put_contents($this->publicationCachePath(), json_encode($data));
     }
 
 
@@ -212,47 +409,55 @@ class Dataset extends Controller
     public function publications()
     {
 
-        // Halaman Publikasi portal mengambil dataset yang berada di group CKAN `publikasi`.
-        $data = $this->requestCkan(
-            "/package_search?rows=1000&fq=" . urlencode('groups:' . $this->publicationGroup)
+        // Halaman Publikasi portal memprioritaskan group CKAN `publikasi`.
+        // Jika dataset belum dimasukkan ke group tetapi masih diberi tag/organisasi/judul publikasi,
+        // fallback di bawah tetap menangkapnya agar halaman tidak kosong setelah aplikasi dibuka ulang.
+        $publicationGroupName = $this->resolveGroupName($this->publicationGroup);
+        $groupData = $this->requestCkan(
+            "/package_search?rows=1000&fq=" . urlencode('groups:' . $publicationGroupName)
         );
 
-        if (
-            ($data['success'] ?? false) === true &&
-            isset($data['result']['results']) &&
-            is_array($data['result']['results'])
-        ) {
-            // Struktur organisasi dari package_search sering belum lengkap,
-            // jadi kita perkaya lagi dengan organization_show agar frontend bisa
-            // memakai logo/gambar organisasi yang sama dengan halaman CKAN.
-            foreach ($data['result']['results'] as $index => $dataset) {
-                $organizationName = $dataset['organization']['name'] ?? null;
+        $groupResults = $this->getPackageSearchResults($groupData);
+        $data = $groupData;
 
-                if (! $organizationName) {
-                    continue;
-                }
+        if ($groupResults === []) {
+            $searchData = $this->requestCkan(
+                "/package_search?rows=1000&q=" . urlencode($this->publicationGroup)
+            );
+            $allData = $this->requestCkan("/package_search?rows=1000");
+            $searchResults = array_filter(
+                $this->getPackageSearchResults($searchData),
+                fn ($dataset) => is_array($dataset) && $this->datasetMatchesPublication($dataset)
+            );
+            $allResults = array_filter(
+                $this->getPackageSearchResults($allData),
+                fn ($dataset) => is_array($dataset) && $this->datasetMatchesPublication($dataset)
+            );
+            $fallbackResults = $this->mergeUniqueDatasets($searchResults, $allResults);
 
-                // Detail organisasi diambil lagi dari CKAN agar image/logo yang dipakai
-                // sama persis dengan yang tampil di halaman organisasi CKAN.
-                $organizationData = $this->requestCkan(
-                    "/organization_show?id=" . urlencode((string) $organizationName)
-                );
-
-                if (($organizationData['success'] ?? false) !== true) {
-                    continue;
-                }
-
-                $organizationResult = $organizationData['result'] ?? null;
-
-                if (! is_array($organizationResult)) {
-                    continue;
-                }
-
-                $data['result']['results'][$index]['organization'] = array_merge(
-                    $dataset['organization'] ?? [],
-                    $organizationResult
-                );
+            if ($fallbackResults !== []) {
+                $data = $this->buildPackageSearchResponse($fallbackResults, $searchData);
             }
+        }
+
+        $results = $this->getPackageSearchResults($data);
+
+        if ($results !== []) {
+            $data = $this->buildPackageSearchResponse(
+                $this->enrichPublicationOrganizations($results),
+                $data
+            );
+            $this->writePublicationCache($data);
+
+            return $this->response->setJSON($data);
+        }
+
+        $cached = $this->readPublicationCache();
+
+        if ($cached !== null) {
+            $cached['from_cache'] = true;
+
+            return $this->response->setJSON($cached);
         }
 
         return $this->response->setJSON($data);

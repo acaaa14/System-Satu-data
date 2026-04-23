@@ -8,6 +8,26 @@ import "../styles/css/footer.css"
 
 const VISITOR_STORAGE_KEY = "portal-visitor-counted-at"
 const VISITOR_COUNT_TTL = 24 * 60 * 60 * 1000
+const partnerLogos = [
+  {
+    href: "https://diskominfo.tangerangkota.go.id/",
+    image: logoKominfo,
+    label: "Kominfo Kota Tangerang",
+    className: "portal-footer__logo-link--kominfo",
+  },
+  {
+    href: "https://play.google.com/store/apps/details?id=id.go.tangerangkota.tangeranglive",
+    image: logoTanglive,
+    label: "Tangerang Live",
+    className: "portal-footer__logo-link--tanglive",
+  },
+  {
+    href: "https://ppid.tangerangkota.go.id/",
+    image: logoPpid,
+    label: "PPID Kota Tangerang",
+    className: "portal-footer__logo-link--ppid",
+  },
+]
 
 export default function Footer() {
   const [visitorTotal, setVisitorTotal] = useState(0)
@@ -69,9 +89,19 @@ export default function Footer() {
           </div>
 
           <div className="portal-footer__logos">
-            <img src={logoKominfo} alt="Kominfo" />
-            <img src={logoTanglive} alt="Tanglive" />
-            <img src={logoPpid} alt="PPID" />
+            {partnerLogos.map((logo) => (
+              <a
+                key={logo.label}
+                href={logo.href}
+                className={`portal-footer__logo-link ${logo.className}`}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={logo.label}
+                title={logo.label}
+              >
+                <img src={logo.image} alt={logo.label} />
+              </a>
+            ))}
           </div>
         </div>
       </div>

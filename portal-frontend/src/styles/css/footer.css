@@ -77,12 +77,36 @@
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 18px;
 }
 
-.portal-footer__logos img {
-  height: 30px;
+.portal-footer__logo-link {
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.portal-footer__logo-link:hover,
+.portal-footer__logo-link:focus-visible {
+  opacity: 0.86;
+  transform: translateY(-2px);
+}
+
+.portal-footer__logo-link img {
+  height: 46px;
   object-fit: contain;
+}
+
+.portal-footer__logo-link--kominfo img {
+  height: 60px;
+}
+
+.portal-footer__logo-link--tanglive img {
+  height: 80px;
+}
+
+.portal-footer__logo-link--ppid img {
+  height: 70px;
 }
 
 .portal-footer__bottom {
@@ -107,5 +131,17 @@
 
   .portal-footer__logos {
     justify-content: flex-start;
+  }
+
+  .portal-footer__logo-link--kominfo img {
+    height: 58px;
+  }
+
+  .portal-footer__logo-link--tanglive img {
+    height: 52px;
+  }
+
+  .portal-footer__logo-link--ppid img {
+    height: 48px;
   }
 }

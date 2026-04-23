@@ -1,42 +1,47 @@
+import { useState } from "react"
 import heroImage from "../assets/img/GambarKomputer.png"
-import geospasialImage from "../assets/img/GambarGeospasial.png"
-import statistikImage from "../assets/img/GambarStatistik.png"
-import perencanaanImage from "../assets/img/GambarPerencanaanPenganggaran.png"
 import logoKominfo from "../assets/img/logokominfo.png"
 import "../styles/pages/home-logo.css"
 
-const featureCards = [
-  { image: geospasialImage, label: "Geospasial" },
-  { image: statistikImage, label: "Statistik" },
-  { image: perencanaanImage, label: "Perencanaan Penganggaran" },
-]
+export default function HomeLogo({ onSearchNavigate }) {
+  const [query, setQuery] = useState("")
 
-export default function HomeLogo() {
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    onSearchNavigate?.(query)
+  }
+
   return (
     <section className="logo-home">
       <div className="container logo-home__inner">
         <div className="logo-home__left">
           <h1>
-            Tangerang <span>Satudata</span>
-            <br />
-            Kota Tangerang
+            <span className="logo-home__title-line">
+              Tangerang <span>Satudata</span>
+            </span>
+            <span className="logo-home__title-location">Kota Tangerang</span>
           </h1>
           <p>Kemudahan dalam mengakses mencari data dengan cepat, tepat dan akurat.</p>
 
-          <div className="logo-home__features">
-            {featureCards.map((item) => (
-              <article key={item.label} className="logo-home__feature">
-                <div className="logo-home__feature-icon" aria-hidden="true">
-                  <img src={item.image} alt="" />
-                </div>
-                <span>{item.label}</span>
-              </article>
-            ))}
-          </div>
+          <form className="logo-home__search" role="search" onSubmit={handleSubmit}>
+            <input
+              type="text"
+              placeholder="Apa yang ingin anda cari?"
+              aria-label="Cari data"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            <button type="submit" aria-label="Search">
+              ⌕
+            </button>
+          </form>
         </div>
 
         <div className="logo-home__right" aria-hidden="true">
           <img src={heroImage} alt="" />
+          <span className="logo-home__code logo-home__code--one" />
+          <span className="logo-home__code logo-home__code--two" />
+          <span className="logo-home__code logo-home__code--three" />
         </div>
       </div>
 
@@ -46,6 +51,15 @@ export default function HomeLogo() {
           <img src={logoKominfo} alt="Kominfo" />
         </div>
       </div>
+
+      <button
+        type="button"
+        className="logo-home__scroll-top"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-label="Kembali ke atas"
+      >
+        ^
+      </button>
     </section>
   )
 }

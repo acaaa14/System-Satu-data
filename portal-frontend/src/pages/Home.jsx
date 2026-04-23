@@ -12,6 +12,7 @@ import sosialImage from "../assets/img/GambarSosialBudaya.png"
 import covidImage from "../assets/img/GambarCovid-19.png"
 import { topicDefinitions } from "../utils/topics"
 import { fetchDatasets, fetchOrganizations, fetchPublications } from "../utils/ckan"
+import { CKAN_BASE_URL } from "../utils/ckanAuth"
 import { normalizePortalOrganizations } from "../utils/portalSections"
 import "../styles/pages/home.css"
 
@@ -23,11 +24,48 @@ const topics = [
   { label: "Covid-19", image: covidImage },
 ]
 
-const datasets = [
-  "Data Evaluasi Penyerapan Anggaran Per Program Pemerintah",
-  "Data Evaluasi Penyerapan Anggaran Per Program Prioritas",
-  "Data Evaluasi Penyerapan Anggaran Per Program Pembangunan",
-]
+function formatDatasetDate(value) {
+  if (!value) return "Baru saja"
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return "Baru saja"
+  }
+
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date)
+}
+
+function getDatasetDateValue(dataset) {
+  return dataset.metadata_modified || dataset.metadata_created || dataset.created || ""
+}
+
+function getDatasetTitle(dataset) {
+  return dataset.title || dataset.name || "Dataset tanpa judul"
+}
+
+function getDatasetUrl(dataset) {
+  const slug = dataset.name || dataset.id
+
+  if (!slug) {
+    return CKAN_BASE_URL
+  }
+
+  return `${CKAN_BASE_URL.replace(/\/+$/, "")}/dataset/${slug}`
+}
+
+function sortNewestDatasets(datasets) {
+  return [...datasets].sort((left, right) => {
+    const leftTime = new Date(getDatasetDateValue(left)).getTime() || 0
+    const rightTime = new Date(getDatasetDateValue(right)).getTime() || 0
+
+    return rightTime - leftTime
+  })
+}
 
 function HighlightedText({ text, query }) {
   if (!query.trim()) {
@@ -48,6 +86,9 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
   const [datasetsCount, setDatasetsCount] = useState(0)
+  const [latestDatasets, setLatestDatasets] = useState([])
+  const [activeDatasetSlide, setActiveDatasetSlide] = useState(0)
+  const [visibleDatasetCards, setVisibleDatasetCards] = useState(3)
   const [organizations, setOrganizations] = useState([])
   const [publications, setPublications] = useState([])
   const [activeDatasetTitle, setActiveDatasetTitle] = useState("")
@@ -56,6 +97,7 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
   const statsRef = useRef(null)
   const topicsRef = useRef(null)
   const datasetsRef = useRef(null)
+  const datasetScrollerRef = useRef(null)
 
   useEffect(() => {
     let isMounted = true
@@ -70,12 +112,14 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
 
         if (isMounted) {
           setDatasetsCount(datasetResult.length)
+          setLatestDatasets(sortNewestDatasets(datasetResult).slice(0, 10))
           setOrganizations(normalizePortalOrganizations(organizationResult, publicationResult))
           setPublications(publicationResult)
         }
       } catch {
         if (isMounted) {
           setDatasetsCount(0)
+          setLatestDatasets([])
           setOrganizations([])
           setPublications([])
         }
@@ -88,6 +132,41 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
       isMounted = false
     }
   }, [])
+
+  useEffect(() => {
+    const scroller = datasetScrollerRef.current
+
+    if (!scroller) {
+      return undefined
+    }
+
+    function updateDatasetCarousel() {
+      const firstCard = scroller.querySelector(".dataset-card")
+
+      if (!firstCard) {
+        setActiveDatasetSlide(0)
+        setVisibleDatasetCards(1)
+        return
+      }
+
+      const cardWidth = firstCard.getBoundingClientRect().width
+      const gap = Number.parseFloat(window.getComputedStyle(scroller).columnGap) || 0
+      const step = Math.max(1, cardWidth + gap)
+      const visibleCards = Math.max(1, Math.round((scroller.clientWidth + gap) / step))
+
+      setVisibleDatasetCards(visibleCards)
+      setActiveDatasetSlide(Math.round(scroller.scrollLeft / step))
+    }
+
+    updateDatasetCarousel()
+    scroller.addEventListener("scroll", updateDatasetCarousel, { passive: true })
+    window.addEventListener("resize", updateDatasetCarousel)
+
+    return () => {
+      scroller.removeEventListener("scroll", updateDatasetCarousel)
+      window.removeEventListener("resize", updateDatasetCarousel)
+    }
+  }, [latestDatasets.length])
 
   const stats = useMemo(() => ([
     { icon: datasetStatsImage, value: datasetsCount, label: "Dataset" },
@@ -130,14 +209,14 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
         action: () => focusSection(topicsRef, setActiveTopicLabel, topic.label),
       }))
 
-    const homeDatasetResults = datasets
-      .filter((datasetTitle) => datasetTitle.toLowerCase().includes(keyword))
-      .map((datasetTitle) => ({
-        id: `home-dataset-${datasetTitle}`,
+    const homeDatasetResults = latestDatasets
+      .filter((dataset) => getDatasetTitle(dataset).toLowerCase().includes(keyword))
+      .map((dataset) => ({
+        id: `home-dataset-${dataset.id || dataset.name}`,
         type: "Dataset",
-        title: datasetTitle,
+        title: getDatasetTitle(dataset),
         description: "Bagian Dataset Terbaru di halaman utama",
-        action: () => focusSection(datasetsRef, setActiveDatasetTitle, datasetTitle),
+        action: () => focusSection(datasetsRef, setActiveDatasetTitle, getDatasetTitle(dataset)),
       }))
 
     const publicationResults = publications
@@ -201,11 +280,27 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
     return [...homeDatasetResults, ...publicationResults, ...organizationResults, ...topicResults, ...statResults]
       .filter((item, index, array) => array.findIndex((entry) => entry.title === item.title && entry.type === item.type) === index)
       .slice(0, 8)
-  }, [searchQuery, organizations, publications, onOrganisasiClick, onPublikasiClick])
+  }, [searchQuery, latestDatasets, organizations, publications, onOrganisasiClick, onPublikasiClick])
 
   const handleSearchSubmit = (event) => {
     event.preventDefault()
     onSearchNavigate?.(searchQuery)
+  }
+
+  const datasetDotCount = Math.max(1, latestDatasets.length - visibleDatasetCards + 1)
+
+  const scrollToDatasetSlide = (index) => {
+    const scroller = datasetScrollerRef.current
+    const target = scroller?.querySelectorAll(".dataset-card")?.[index]
+
+    if (!scroller || !target) {
+      return
+    }
+
+    scroller.scrollTo({
+      left: target.offsetLeft - scroller.offsetLeft,
+      behavior: "smooth",
+    })
   }
 
   return (
@@ -214,9 +309,10 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
         <div className="container home-hero__inner">
           <div className="home-hero__left">
             <h1>
-              Tangerang <span>Satudata</span>
-              <br />
-              Kota Tangerang
+              <span className="home-hero__title-line">
+                <span className="home-hero__title-city">Tangerang</span> <span className="home-hero__title-brand">Satudata</span>
+              </span>
+              <span className="home-hero__title-location">Kota Tangerang</span>
             </h1>
             <p>Kemudahan dalam mengakses mencari data dengan cepat, tepat dan akurat.</p>
 
@@ -338,28 +434,50 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
           <span className="section-badge">Fitur Unggulan</span>
           <h2>Dataset Terbaru</h2>
 
-          <div className="dataset-grid">
-            {datasets.map((title) => (
-              <article className={`dataset-card ${activeDatasetTitle === title ? "is-highlighted" : ""}`} key={title}>
-                <div className="dataset-card__thumb">
-                  <img src={logoPortal} alt="Logo dataset" />
-                </div>
-                <h3>{title}</h3>
-                <div className="dataset-card__meta">
-                  <span>Admin</span>
-                  <span>27 Maret, 2026</span>
-                </div>
-              </article>
-            ))}
+          <div className="dataset-grid" ref={datasetScrollerRef}>
+            {latestDatasets.length === 0 ? (
+              <div className="dataset-card dataset-card--empty">
+                <h3>Belum ada dataset terbaru dari CKAN.</h3>
+              </div>
+            ) : null}
+
+            {latestDatasets.map((dataset) => {
+              const title = getDatasetTitle(dataset)
+
+              return (
+                <a
+                  className={`dataset-card ${activeDatasetTitle === title ? "is-highlighted" : ""}`}
+                  href={getDatasetUrl(dataset)}
+                  key={dataset.id || dataset.name || title}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <div className="dataset-card__thumb">
+                    <img src={logoPortal} alt="" />
+                  </div>
+                  <h3>{title}</h3>
+                  <div className="dataset-card__meta">
+                    <span>{dataset.author || "Admin"}</span>
+                    <span>{formatDatasetDate(getDatasetDateValue(dataset))}</span>
+                  </div>
+                </a>
+              )
+            })}
           </div>
 
-          <div className="dataset-dots" aria-hidden="true">
-            <span className="is-active" />
-            <span />
-            <span />
-            <span />
-            <span />
-          </div>
+          {latestDatasets.length > visibleDatasetCards ? (
+            <div className="dataset-dots" aria-label="Navigasi dataset terbaru">
+              {Array.from({ length: datasetDotCount }, (_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={activeDatasetSlide === index ? "is-active" : ""}
+                  aria-label={`Lihat dataset terbaru ${index + 1}`}
+                  onClick={() => scrollToDatasetSlide(index)}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
       </section>
     </main>
