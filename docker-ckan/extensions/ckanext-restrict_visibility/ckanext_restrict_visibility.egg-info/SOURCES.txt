@@ -1,0 +1,10 @@
+setup.py
+ckanext/__init__.py
+ckanext/restrict_visibility/__init__.py
+ckanext/restrict_visibility/plugin.py
+ckanext/restrict_visibility/templates/package/snippets/package_basic_fields.html
+ckanext_restrict_visibility.egg-info/PKG-INFO
+ckanext_restrict_visibility.egg-info/SOURCES.txt
+ckanext_restrict_visibility.egg-info/dependency_links.txt
+ckanext_restrict_visibility.egg-info/entry_points.txt
+ckanext_restrict_visibility.egg-info/top_level.txt

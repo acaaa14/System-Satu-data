@@ -72,15 +72,41 @@ Jawaban singkat:
 
 > Sinkronisasi dokumentasi, konsolidasi routing frontend, penguatan validasi admin, dan memindahkan publikasi dari local storage ke backend atau sumber data yang lebih stabil.
 
+### 11. Bagaimana cara membatasi pilihan Public dan Private di CKAN?
+
+Jawaban singkat:
+
+> Saya tidak mengubah file core CKAN seperti `create.py` atau `update.py`. Saya membuat extension CKAN lokal bernama `ckanext-restrict_visibility`. Extension ini membatasi visibility dataset agar `Public` hanya bisa dipilih oleh sysadmin dan admin organisasi, sedangkan editor hanya bisa memilih `Private`.
+
+### 12. Apakah plugin visibility itu didownload?
+
+Jawaban singkat:
+
+> Tidak. Plugin atau extension tersebut dibuat sendiri di project lokal, tepatnya di folder `docker-ckan/extensions/ckanext-restrict_visibility`. Extension ini di-mount ke container Docker, lalu diinstall saat CKAN start menggunakan `uv pip install --system -e /app/extensions/ckanext-restrict_visibility`.
+
+### 13. Bagian CKAN mana yang diubah untuk menyembunyikan Public dari editor?
+
+Jawaban singkat:
+
+> Yang diubah adalah template dropdown Visibility melalui extension, bukan template core CKAN secara langsung. Template asli CKAN tetap dipakai, lalu bagian block `package_metadata_fields_visibility` dioverride agar editor hanya melihat `Private`. Untuk sysadmin dan admin organisasi, opsi `Public` tetap ditampilkan.
+
+### 14. Kenapa validasi visibility juga dibuat di backend?
+
+Jawaban singkat:
+
+> Karena menyembunyikan `Public` di tampilan saja belum cukup aman. Editor masih bisa mencoba mengirim request manual lewat API atau browser developer tools. Karena itu extension juga memakai `IAuthFunctions` untuk memaksa dataset editor menjadi `Private` dan menolak update ke `Public`.
+
 ## Bukti File yang Bisa Disebut Saat Ditanya
 
 - React dan Bootstrap: `portal-frontend/package.json`
 - CodeIgniter 4 dan JWT: `portal-api/composer.json`
 - Renderer frontend: `portal-api/app/Config/Routes.php`, `portal-api/app/Controllers/Frontend.php`
 - CKAN proxy: `portal-api/app/Controllers/Dataset.php`
+- Extension pembatasan visibility: `docker-ckan/extensions/ckanext-restrict_visibility/ckanext/restrict_visibility/plugin.py`
+- Template visibility CKAN: `docker-ckan/extensions/ckanext-restrict_visibility/ckanext/restrict_visibility/templates/package/snippets/package_basic_fields.html`
+- Aktivasi plugin CKAN: `docker-ckan/compose/config/ckan/.env`
 - Docker Compose stack: `docker-ckan/compose/docker-compose.yml`
 
 ## Closing Statement
 
 > Secara implementasi, sistem ini sudah menunjukkan integrasi nyata antara React, CodeIgniter 4, CKAN, PostgreSQL, dan Docker. Beberapa area masih bisa dimatangkan, tetapi arsitektur inti dan alur data utamanya sudah berjalan.
-

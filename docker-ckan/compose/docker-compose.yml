@@ -49,6 +49,7 @@ include:
 
   - path: services/portal-frontend/portal-frontend.yaml
     project_directory: .
+  
 
 networks:
   frontend:

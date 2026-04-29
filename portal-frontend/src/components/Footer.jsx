@@ -3,12 +3,18 @@ import logoPortal from "../assets/img/logologin.png"
 import logoKominfo from "../assets/img/logokominfo.png"
 import logoPpid from "../assets/img/logoppid.png"
 import logoTanglive from "../assets/img/logotnglive.png"
+import logoKotaTangerang from "../assets/img/LogoKotaTangerang.png"
 import API_BASE_URL from "../utils/api"
 import "../styles/css/footer.css"
 
 const VISITOR_STORAGE_KEY = "portal-visitor-counted-at"
 const VISITOR_COUNT_TTL = 24 * 60 * 60 * 1000
 const partnerLogos = [
+   {
+    image: logoKotaTangerang,
+    label: "Kota Tangerang",
+    className: "portal-footer__logo-link--kotang",
+  },
   {
     href: "https://diskominfo.tangerangkota.go.id/",
     image: logoKominfo,
@@ -78,8 +84,10 @@ export default function Footer() {
       <div className="container portal-footer__content">
         <div className="portal-footer__brand">
           <img src={logoPortal} alt="Tangerang Satu Data" className="portal-footer__main-logo" />
-          <h3>Portal Data Terpadu Pemerintah Kota Tangerang</h3>
-          <p>Jl. Satria, Kota Tangerang, Indonesia 15111</p>
+          <h3>Portal Data Terpadu</h3>
+            <h3>Pemerintah Kota Tangerang</h3>
+          <p>Jl. Satria, RT.002/RW.001, Sukaasih, Kec. Tangerang</p>
+           <p>Kota Tangerang, Banten 15111</p>
         </div>
 
         <div className="portal-footer__right">

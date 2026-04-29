@@ -117,6 +117,7 @@ Service yang menjadi bagian arsitektur:
 | CodeIgniter sebagai host frontend | Sesuai | `Frontend::index` melayani build React |
 | CKAN sebagai sumber data | Sesuai | Dipakai untuk dataset, organisasi, publikasi, topik, search, preview |
 | Login admin | Sesuai | Alur utama langsung ke CKAN lalu sinkronisasi session ke JWT portal |
+| Pembatasan visibility dataset | Sesuai | Editor hanya dapat membuat dataset Private; Public hanya untuk sysadmin dan admin organisasi |
 | Halaman publikasi | Sesuai | Data publikasi berasal dari CKAN group tertentu melalui backend |
 | Halaman topik | Sesuai | Lima topik utama tetap ada, tetapi isinya diperkaya dari CKAN |
 | Statistik portal | Sebagian | Sebagian dari CKAN, sebagian dari state lokal/helper frontend |
@@ -131,6 +132,18 @@ Service yang menjadi bagian arsitektur:
 - Topik tidak lagi sepenuhnya statis; data isi kartunya berasal dari CKAN, tetapi daftar lima topik utama tetap dijaga di frontend.
 - Organisasi tertentu disaring dari halaman Organisasi jika sudah dipakai di alur publikasi atau dianggap sebagai topik.
 - Counter pengunjung sudah ada, tetapi belum terdokumentasi rapi sebelumnya.
+- Hak akses visibility dataset diperkuat melalui extension CKAN, bukan dengan mengubah file core CKAN seperti `create.py` atau `update.py`.
+
+### Pembatasan visibility dataset
+
+Sistem menerapkan aturan bahwa dataset berstatus `Public` hanya boleh dibuat atau diubah oleh sysadmin dan admin organisasi. User dengan role editor tetap dapat membuat dataset, tetapi pilihan visibility yang tersedia hanya `Private`.
+
+Implementasi dilakukan melalui extension `ckanext-restrict_visibility` agar perubahan tidak langsung menyentuh source utama CKAN. Extension ini bekerja di dua lapisan:
+
+- lapisan backend CKAN melalui `IAuthFunctions`, untuk memaksa dataset editor menjadi `Private` dan menolak update ke `Public`,
+- lapisan tampilan CKAN melalui override template, untuk menyembunyikan opsi `Public` dari dropdown Visibility bagi editor.
+
+Dengan pendekatan ini, pembatasan tidak hanya terjadi di tampilan. Jika editor mencoba mengirim nilai `private=False` melalui request manual atau API, backend CKAN tetap melakukan validasi dan menolak perubahan tersebut.
 
 ## 7. Bukti Implementasi di Kode
 
@@ -237,6 +250,86 @@ services:
   ckan:
     image: ghcr.io/keitaroinc/ckan:${CKAN_VERSION}
 ```
+
+- `Pembatasan visibility dataset di CKAN`
+  Bukti extension ada di [docker-ckan/extensions/ckanext-restrict_visibility/ckanext/restrict_visibility/plugin.py](/root/baru/docker-ckan/extensions/ckanext-restrict_visibility/ckanext/restrict_visibility/plugin.py:23).
+  Bukti plugin diaktifkan ada di [docker-ckan/compose/config/ckan/.env](/root/baru/docker-ckan/compose/config/ckan/.env:29).
+  Bukti template dropdown diubah ada di [docker-ckan/extensions/ckanext-restrict_visibility/ckanext/restrict_visibility/templates/package/snippets/package_basic_fields.html](/root/baru/docker-ckan/extensions/ckanext-restrict_visibility/ckanext/restrict_visibility/templates/package/snippets/package_basic_fields.html:1).
+
+```python
+# File: docker-ckan/extensions/ckanext-restrict_visibility/ckanext/restrict_visibility/plugin.py
+# Letak: helper pengecekan hak akses Public
+def can_set_public(self, data_dict=None, context=None):
+    if _check_access('sysadmin', context):
+        return True
+
+    org_id = _organization_id(data_dict)
+    if not org_id:
+        return False
+
+    return _check_access(
+        'organization_update',
+        context,
+        {'id': org_id}
+    )
+```
+
+Catatan:
+Kode ini mengecek apakah user boleh membuat dataset `Public`. Jika user adalah `sysadmin`, akses langsung diberikan. Jika bukan sysadmin, sistem mengambil ID organisasi dataset lalu mengecek apakah user punya hak `organization_update`, yang merepresentasikan role admin organisasi.
+
+```python
+# File: docker-ckan/extensions/ckanext-restrict_visibility/ckanext/restrict_visibility/plugin.py
+# Letak: validasi backend create/update dataset
+def package_create(self, context, data_dict):
+    if not self.can_set_public(data_dict, context):
+        data_dict['private'] = True
+    return {'success': True}
+
+def package_update(self, context, data_dict):
+    if not self.can_set_public(data_dict, context):
+        if data_dict.get('private') is False:
+            return {
+                'success': False,
+                'msg': 'Hanya sysadmin atau admin organisasi yang boleh set Public'
+            }
+    return {'success': True}
+```
+
+Catatan:
+Kode ini menjadi pengaman backend. Saat dataset dibuat oleh editor, nilai `private` dipaksa menjadi `True`, sehingga dataset tetap `Private`. Saat dataset diupdate, editor tidak boleh mengubah visibility menjadi `Public`. Jadi pembatasan tetap berlaku walaupun user mencoba mengirim request manual lewat API atau browser developer tools.
+
+```html
+<!-- File: docker-ckan/extensions/ckanext-restrict_visibility/ckanext/restrict_visibility/templates/package/snippets/package_basic_fields.html -->
+<!-- Letak: pilihan dropdown Visibility -->
+{% set visibility_options = [('True', _('Private'))] %}
+{% if can_set_public %}
+  {% set visibility_options = visibility_options + [('False', _('Public'))] %}
+{% endif %}
+```
+
+Catatan:
+Kode ini mengatur isi dropdown `Visibility` di form CKAN. Secara default pilihan yang ditampilkan hanya `Private`. Opsi `Public` baru ditambahkan jika helper `can_set_public` menyatakan user adalah sysadmin atau admin organisasi.
+
+```env
+# File: docker-ckan/compose/config/ckan/.env
+# Letak: aktivasi plugin CKAN
+CKAN__PLUGINS=envvars activity image_view text_view datastore datapusher datatables_view xloader example_idatasetform restrict_visibility
+```
+
+Catatan:
+Baris ini mengaktifkan plugin `restrict_visibility` di CKAN. Tanpa menambahkan nama plugin di `CKAN__PLUGINS`, extension tidak akan dijalankan oleh CKAN.
+
+```yaml
+# File: docker-ckan/compose/services/ckan/ckan.yaml
+# Letak: install extension sebelum CKAN start
+command:
+  - /bin/bash
+  - -lc
+  - uv pip install --system -e /app/extensions/ckanext-restrict_visibility && exec /app/start_ckan.sh
+```
+
+Catatan:
+Command ini memastikan extension `ckanext-restrict_visibility` terinstall lebih dulu setiap container CKAN dijalankan. Setelah extension terinstall, CKAN baru distart melalui `/app/start_ckan.sh`. Ini mencegah error `PluginNotFoundException` saat CKAN membaca plugin dari konfigurasi.
 
 - `PostgreSQL sebagai database utama platform data`
   Bukti stack database diorkestrasi dari [docker-ckan/compose/docker-compose.yml](/root/baru/docker-ckan/compose/docker-compose.yml:25).

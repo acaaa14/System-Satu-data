@@ -97,6 +97,10 @@
   object-fit: contain;
 }
 
+.portal-footer__logo-link--kotang img {
+  height: 80px;
+}
+
 .portal-footer__logo-link--kominfo img {
   height: 60px;
 }

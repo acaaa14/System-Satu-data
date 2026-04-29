@@ -1,0 +1,22 @@
+{% ckan_extends %}
+
+{% block package_metadata_fields_visibility %}
+  {# Editor hanya melihat Private. Public ditambahkan hanya jika helper
+     backend menyatakan user adalah sysadmin atau admin organisasi. #}
+  {% set can_set_public = h.restrict_visibility_can_set_public(data) %}
+  {% set visibility_options = [('True', _('Private'))] %}
+  {% if can_set_public %}
+    {% set visibility_options = visibility_options + [('False', _('Public'))] %}
+  {% endif %}
+
+  <div class="form-group control-medium">
+    <label for="field-private" class="form-label">{{ _('Visibility') }}</label>
+    <div class="controls">
+      <select id="field-private" name="private" class="form-control">
+        {% for option in visibility_options %}
+          <option value="{{ option[0] }}" {% if option[0] == data.private|trim %}selected="selected"{% endif %}>{{ option[1] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+{% endblock %}
