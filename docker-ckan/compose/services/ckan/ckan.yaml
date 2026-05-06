@@ -20,7 +20,7 @@ services:
     command:
       - /bin/bash
       - -lc
-      - uv pip install --system -e /app/extensions/ckanext-restrict_visibility && exec /app/start_ckan.sh
+      - uv pip install --system -e /app/extensions/ckanext-restrict_visibility && ckan config-tool /app/production.ini 'ckanext.xloader.site_url = http://ckan:5000' && ckan config-tool /app/production.ini 'ckanext.xloader.formats = csv application/csv xls xlsx tsv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet ods application/vnd.oasis.opendocument.spreadsheet json application/json xml application/xml text/xml' && exec /app/start_ckan.sh
     env_file:
       - ${PWD}/config/db/.env
       - ${PWD}/config/ckan/.env

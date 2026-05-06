@@ -108,11 +108,24 @@
 }
 
 .organisasi-card {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
   background: #ffffff;
   border: 1px solid #dce4f1;
   border-radius: 18px;
   padding: 18px 18px 16px;
   box-shadow: 0 18px 38px -34px rgba(20, 35, 79, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.organisasi-card:hover,
+.organisasi-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: #9ed8ff;
+  box-shadow: 0 24px 44px -34px rgba(20, 35, 79, 0.42);
+  outline: 0;
 }
 
 .organisasi-card__thumb {
@@ -216,9 +229,370 @@
   outline-offset: 3px;
 }
 
+.organisasi-page--detail {
+  min-height: calc(100svh - 84px);
+  background:
+    radial-gradient(circle at 0 10%, rgba(42, 178, 241, 0.22), transparent 28%),
+    linear-gradient(100deg, #dff3fb 0%, #ffffff 30%, #ffffff 72%, #eff9ff 100%);
+}
+
+.organisasi-detail {
+  padding: 18px 0 88px;
+}
+
+.organisasi-detail__inner {
+  display: grid;
+  gap: 22px;
+}
+
+.organisasi-detail__breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.organisasi-detail__breadcrumb button {
+  border: 0;
+  padding: 0;
+  color: #129dff;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.organisasi-detail__breadcrumb button:hover,
+.organisasi-detail__breadcrumb button:focus-visible {
+  text-decoration: underline;
+  outline: 0;
+}
+
+.organisasi-detail__breadcrumb strong {
+  color: #62708a;
+  font-weight: 500;
+}
+
+.organisasi-detail__layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 382px) minmax(0, 1fr);
+  gap: 30px;
+  align-items: start;
+}
+
+.organisasi-detail__sidebar,
+.organisasi-detail__content {
+  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.organisasi-detail__sidebar {
+  display: grid;
+}
+
+.organisasi-detail__sidebar h1 {
+  margin: 0;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid #dde4ee;
+  color: #111827;
+  font-size: 1.58rem;
+  line-height: 1.25;
+}
+
+.organisasi-detail__org-name {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #111827;
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+.organisasi-detail__org-name strong {
+  min-width: 58px;
+  height: 50px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0aa7ed;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.organisasi-detail__logo {
+  min-height: 330px;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #ffffff;
+}
+
+.organisasi-detail__logo img {
+  width: min(100%, 310px);
+  max-height: 310px;
+  object-fit: contain;
+}
+
+.organisasi-detail__content {
+  min-height: 386px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.organisasi-detail__toolbar {
+  min-height: 94px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 246px);
+  align-items: center;
+  gap: 24px;
+  padding: 20px;
+  border-bottom: 1px solid #dce4ee;
+}
+
+.organisasi-detail__toolbar h2 {
+  margin: 0;
+  color: #3f3f46;
+  font-size: 1.62rem;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+.organisasi-detail__toolbar input {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid #cfd8e3;
+  border-radius: 4px;
+  padding: 0 14px;
+  color: #334155;
+  background: #ffffff;
+  font: inherit;
+}
+
+.organisasi-detail__toolbar input:focus {
+  border-color: #149ff4;
+  outline: 3px solid rgba(20, 159, 244, 0.16);
+}
+
+.organisasi-detail__datasets {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 20px;
+}
+
+.organisasi-detail__dataset-link {
+  width: fit-content;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #2268ff;
+  font-size: 1.22rem;
+  line-height: 1.5;
+  font-weight: 500;
+  font-family: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.organisasi-detail__dataset-link:hover,
+.organisasi-detail__dataset-link:focus-visible {
+  color: #0d4cd4;
+  text-decoration: underline;
+  outline: 0;
+}
+
+.organisasi-detail__empty {
+  margin: 0;
+  color: #64748b;
+}
+
+.organisasi-detail__pagination {
+  min-height: 82px;
+  border-top: 1px solid #dce4ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px;
+}
+
+.organisasi-detail__pagination button {
+  min-width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #4b5563;
+  font: inherit;
+  cursor: pointer;
+}
+
+.organisasi-detail__pagination button:hover,
+.organisasi-detail__pagination button:focus-visible {
+  color: #0f62fe;
+  outline: 0;
+}
+
+.organisasi-detail__pagination button.is-active {
+  min-width: 50px;
+  height: 50px;
+  background: #136ff6;
+  color: #ffffff;
+}
+
+.organisasi-detail__pagination .organisasi-detail__next {
+  width: auto;
+  min-width: 72px;
+}
+
+.organisasi-dataset-detail {
+  padding: 18px 0 84px;
+  min-height: calc(100svh - 84px);
+  background:
+    radial-gradient(circle at 0 10%, rgba(42, 178, 241, 0.22), transparent 28%),
+    linear-gradient(100deg, #dff3fb 0%, #ffffff 30%, #ffffff 72%, #eff9ff 100%);
+}
+
+.organisasi-dataset-detail__inner {
+  display: grid;
+  gap: 26px;
+}
+
+.organisasi-dataset-card,
+.organisasi-chart-card {
+  border: 1px solid #dce4ee;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.organisasi-dataset-card__header {
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #dce4ee;
+}
+
+.organisasi-dataset-card__header h1,
+.organisasi-chart-card h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.55rem;
+  line-height: 1.25;
+}
+
+.organisasi-dataset-card__downloads {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: #111827;
+  font-size: 1rem;
+}
+
+.organisasi-dataset-card__downloads a,
+.organisasi-dataset-card__downloads .is-disabled {
+  min-height: 38px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  background: #136ff6;
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.organisasi-dataset-card__downloads .is-disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.organisasi-dataset-card__downloads a:hover,
+.organisasi-dataset-card__downloads a:focus-visible {
+  background: #0d58d7;
+  outline: 0;
+}
+
+.organisasi-dataset-table-wrap {
+  overflow-x: auto;
+  padding: 20px;
+}
+
+.organisasi-dataset-table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: collapse;
+  color: #0f172a;
+  font-size: 0.98rem;
+}
+
+.organisasi-dataset-table th,
+.organisasi-dataset-table td {
+  border: 1px solid #d6d9e0;
+  padding: 10px 8px;
+  vertical-align: top;
+}
+
+.organisasi-dataset-table th {
+  background: #087df4;
+  color: #ffffff;
+  text-align: center;
+  font-weight: 700;
+}
+
+.organisasi-dataset-table td {
+  background: #f7cbe9;
+}
+
+.organisasi-dataset-table tr.is-summary td {
+  background: #c9f4c5;
+  font-weight: 700;
+}
+
+.organisasi-dataset-state {
+  margin: 20px;
+  border: 1px solid #dce4ee;
+  background: #f8fafc;
+  padding: 22px;
+  color: #475569;
+  text-align: center;
+}
+
+.organisasi-chart-card header {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid #dce4ee;
+}
+
+.organisasi-chart-card__canvas {
+  height: 470px;
+  padding: 20px 24px 24px;
+  background: #ffffff;
+}
+
 @media (max-width: 1100px) {
   .organisasi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .organisasi-detail__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .organisasi-detail__logo {
+    min-height: 240px;
   }
 }
 
@@ -257,5 +631,40 @@
     height: 46px;
     border-radius: 12px;
     font-size: 1.45rem;
+  }
+
+  .organisasi-detail {
+    padding: 16px 0 64px;
+  }
+
+  .organisasi-detail__toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .organisasi-detail__toolbar h2 {
+    font-size: 1.32rem;
+  }
+
+  .organisasi-detail__dataset-link {
+    font-size: 1.05rem;
+  }
+
+  .organisasi-detail__pagination {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .organisasi-dataset-card__header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .organisasi-dataset-card__downloads {
+    justify-content: flex-start;
+  }
+
+  .organisasi-chart-card__canvas {
+    height: 360px;
+    padding: 14px 8px 18px;
   }
 }

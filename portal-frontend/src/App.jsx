@@ -26,6 +26,10 @@ function getInitialView() {
     return "publikasi"
   }
 
+  if (path === "/organisasi") {
+    return "organisasi"
+  }
+
   if (path === "/topik") {
     return "topik"
   }

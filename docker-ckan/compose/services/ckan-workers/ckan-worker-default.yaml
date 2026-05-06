@@ -22,7 +22,7 @@ services:
     entrypoint:
       - /bin/bash
       - -lc
-      - uv pip install --system -e /app/extensions/ckanext-restrict_visibility && exec ckan -c /app/production.ini jobs worker default
+      - uv pip install --system -e /app/extensions/ckanext-restrict_visibility && ckan config-tool /app/production.ini 'ckanext.xloader.site_url = http://ckan:5000' && ckan config-tool /app/production.ini 'ckanext.xloader.formats = csv application/csv xls xlsx tsv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet ods application/vnd.oasis.opendocument.spreadsheet json application/json xml application/xml text/xml' && exec ckan -c /app/production.ini jobs worker default
     healthcheck:
       disable: true
 

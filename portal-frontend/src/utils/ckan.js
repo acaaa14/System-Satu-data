@@ -57,4 +57,10 @@ export async function fetchResourcePreview(resourceId) {
   return getResultPayload(response)?.records || []
 }
 
+// Dipakai halaman detail dataset karena butuh `fields` untuk membetulkan header tahun.
+export async function fetchResourcePreviewResult(resourceId) {
+  const response = await api.get(`/api/preview/${resourceId}`)
+  return getResultPayload(response) || { fields: [], records: [] }
+}
+
 export { DEFAULT_API_BASE_URL }

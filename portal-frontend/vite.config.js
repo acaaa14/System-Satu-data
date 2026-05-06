@@ -14,6 +14,23 @@ export default defineConfig(({ mode }) => ({
         manualChunks(id) {
           // Simple vendor chunking to mimic Jakarta multiple chunks
           if (id.includes('node_modules')) {
+            // Library grafik dipisah agar bundle utama tidak terlalu besar.
+            if (
+              id.includes('/recharts/') ||
+              id.includes('/victory-vendor/') ||
+              id.includes('/d3-') ||
+              id.includes('/decimal.js-light/') ||
+              id.includes('/react-redux/') ||
+              id.includes('/@reduxjs/toolkit/') ||
+              id.includes('/redux/') ||
+              id.includes('/reselect/') ||
+              id.includes('/immer/') ||
+              id.includes('/use-sync-external-store/')
+            ) {
+              return 'chart-vendors'
+            }
+
+            // Dependency umum tetap digabung di vendors.
             return 'vendors'
           }
         },
