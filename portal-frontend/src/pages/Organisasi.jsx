@@ -148,14 +148,79 @@ function parseNumberValue(value) {
   return Number.isFinite(numberValue) ? numberValue : 0
 }
 
+function getYearFromColumn(column) {
+  const match = String(column || "").match(/(?:tahun\s*)?(\d{4})/i)
+  return match?.[1] || ""
+}
+
+function normalizeYearValue(value) {
+  const numberValue = parseNumberValue(value)
+
+  if (Math.abs(numberValue) > 1000) {
+    return numberValue / 1000
+  }
+
+  return numberValue
+}
+
+function formatDecimalValue(value) {
+  const numberValue = normalizeYearValue(value)
+
+  if (!Number.isFinite(numberValue)) {
+    return value ?? "-"
+  }
+
+  if (Number.isInteger(numberValue)) {
+    return new Intl.NumberFormat("id-ID", {
+      maximumFractionDigits: 0,
+    }).format(numberValue)
+  }
+
+  return new Intl.NumberFormat("id-ID", {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3,
+  }).format(numberValue)
+}
+
+function formatTableValue(column, value) {
+  if (!getYearFromColumn(column)) {
+    return value ?? "-"
+  }
+
+  return formatDecimalValue(value)
+}
+
 // Grafik hanya mengambil kolom dengan nama tahun, misalnya 2015 sampai 2025.
 function buildChartData(record) {
   return Object.entries(record || {})
-    .filter(([key]) => /^\d{4}$/.test(key))
-    .map(([year, value]) => ({
-      year,
-      jumlah: parseNumberValue(value),
+    .map(([key, value]) => ({
+      year: getYearFromColumn(key),
+      jumlah: normalizeYearValue(value),
     }))
+    .filter((item) => item.year)
+}
+
+function normalizeComparableValue(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "")
+}
+
+function isRepeatedHeaderRow(row, columns) {
+  if (!row || !columns.length) {
+    return false
+  }
+
+  const comparableValues = columns.map((column) => normalizeComparableValue(row[column]))
+  const comparableColumns = columns.map((column) => normalizeComparableValue(column))
+
+  const matchingCells = comparableValues.filter((value, index) => value && value === comparableColumns[index]).length
+  const yearHeaderCells = columns.filter((column) => {
+    const year = getYearFromColumn(column)
+    return year && normalizeComparableValue(row[column]).includes(year)
+  }).length
+
+  return matchingCells >= 2 || yearHeaderCells >= 3
 }
 
 function normalizeKey(value) {
@@ -349,8 +414,10 @@ export default function Organisasi() {
   if (selectedOrganization && selectedDataset) {
     // Tabel dinormalisasi dulu supaya kolom tahun selalu bisa dibaca grafik.
     const previewTable = buildPreviewTable(previewFields, previewRecords)
-    const chartSourceRecord = previewTable.rows[0] || {}
+    const tableRows = previewTable.rows.filter((row) => !isRepeatedHeaderRow(row, previewTable.columns))
+    const chartSourceRecord = tableRows[0] || {}
     const chartData = buildChartData(chartSourceRecord)
+    const yearColumnCount = previewTable.columns.filter((column) => getYearFromColumn(column)).length
     const downloadFormats = ["xls", "xml", "pdf", "json"]
     const jsonDetailUrl = `${CKAN_BASE_URL.replace(/\/+$/, "")}/api/3/action/package_show?id=${selectedDataset.name || selectedDataset.id}`
 
@@ -397,16 +464,44 @@ export default function Organisasi() {
                   <table className="organisasi-dataset-table">
                     <thead>
                       <tr>
-                        {previewTable.columns.map((column) => (
-                          <th key={column}>{column}</th>
-                        ))}
+                        {previewTable.columns.map((column, index) => {
+                          const year = getYearFromColumn(column)
+                          const isFirstYearColumn =
+                            year && !previewTable.columns.slice(0, index).some((item) => getYearFromColumn(item))
+
+                          if (year) {
+                            return isFirstYearColumn ? (
+                              <th className="is-year-group" colSpan={yearColumnCount} key="tahun-ke">
+                                Tahun Ke
+                              </th>
+                            ) : null
+                          }
+
+                          return (
+                            <th rowSpan={yearColumnCount ? 2 : 1} key={column}>
+                              {column}
+                            </th>
+                          )
+                        })}
                       </tr>
+                      {yearColumnCount ? (
+                        <tr>
+                          {previewTable.columns
+                            .filter((column) => getYearFromColumn(column))
+                            .map((column) => (
+                              <th className="is-year-column" key={column}>
+                                <span aria-hidden="true">›</span>
+                                {getYearFromColumn(column)}
+                              </th>
+                            ))}
+                        </tr>
+                      ) : null}
                     </thead>
                     <tbody>
-                      {previewTable.rows.map((record, index) => (
-                        <tr className={index === 0 ? "is-summary" : ""} key={record._id || index}>
+                      {tableRows.map((record, index) => (
+                        <tr key={record._id || index}>
                           {previewTable.columns.map((column) => (
-                            <td key={column}>{record[column] ?? "-"}</td>
+                            <td key={column}>{formatTableValue(column, record[column])}</td>
                           ))}
                         </tr>
                       ))}

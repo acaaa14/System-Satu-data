@@ -3,7 +3,7 @@ services:
     image: keitaro/ckan-datapusher:latest
     restart: unless-stopped
     ports:
-      - "8000:8800"  # Menghubungkan port 8000 (luar) ke 8800 (dalam)
+      - "8000:8000"
     networks:
       - backend
       - frontend
@@ -13,6 +13,6 @@ services:
       - ${PWD}/config/ckan/.env
     environment:
       - DATAPUSHER_HOST=0.0.0.0
-      - DATAPUSHER_PORT=8800
+      - DATAPUSHER_PORT=8000
       - REWRITE_RESOURCES=True
       - REWRITE_URL=http://ckan-ckan-1:5000

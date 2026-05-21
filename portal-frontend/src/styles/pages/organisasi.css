@@ -550,6 +550,13 @@
   font-weight: 700;
 }
 
+.organisasi-dataset-table th.is-year-column span {
+  color: #ff1d1d;
+  display: inline-block;
+  margin-right: 2px;
+  font-weight: 900;
+}
+
 .organisasi-dataset-table td {
   background: #f7cbe9;
 }

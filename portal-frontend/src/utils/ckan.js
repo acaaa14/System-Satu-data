@@ -39,6 +39,19 @@ export async function fetchTopics() {
   return getResultPayload(response) || []
 }
 
+// Mengambil dataset berdasarkan CKAN group/topik.
+export async function fetchGroupDatasets(groupName) {
+  const response = await api.get("/api/group-datasets", {
+    params: {
+      group: groupName,
+    },
+  })
+
+  const result = getResultPayload(response)
+
+  return result?.results || []
+}
+
 // Mengambil seluruh organisasi dari CKAN, termasuk yang belum punya dataset.
 export async function fetchOrganizations() {
   const response = await api.get("/api/organizations")

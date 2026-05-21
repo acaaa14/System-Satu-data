@@ -1,0 +1,276 @@
+{
+	"info": {
+		"_postman_id": "b1f09ad4-51e9-4e78-9e5c-7b003a2fc9cf",
+		"name": "CKAN Stats Workflow API",
+		"description": "Kumpulan API Endpoint untuk menguji alur persetujuan statistik data (Workflow) pada ekstensi ckanext-statsworkflow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Show Status",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{CKAN_API_KEY}}",
+						"description": "Isi dengan API Key user CKAN Anda"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"nama-dataset-anda\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/3/action/statsworkflow_status_show",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"3",
+						"action",
+						"statsworkflow_status_show"
+					]
+				},
+				"description": "Melihat status workflow dataset saat ini (draft, waiting_validation, dll)."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Submit to Validator (Editor)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{CKAN_API_KEY}}",
+						"description": "Isi dengan API Key user ber-role Editor atau Creator dataset"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"nama-dataset-anda\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/3/action/statsworkflow_submit_validation",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"3",
+						"action",
+						"statsworkflow_submit_validation"
+					]
+				},
+				"description": "Mengajukan dataset dari status 'draft' atau 'revisi' ke tahap validasi."
+			},
+			"response": []
+		},
+		{
+			"name": "3. Validator Approve (Validator)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{CKAN_API_KEY}}",
+						"description": "Isi dengan API Key user yang terdaftar sebagai Validator"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"nama-dataset-anda\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/3/action/statsworkflow_validator_approve",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"3",
+						"action",
+						"statsworkflow_validator_approve"
+					]
+				},
+				"description": "Menyetujui tahap validasi dan melanjutkannya ke tahap verifikasi."
+			},
+			"response": []
+		},
+		{
+			"name": "4. Validator Request Revision (Validator)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{CKAN_API_KEY}}",
+						"description": "Isi dengan API Key user yang terdaftar sebagai Validator"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"nama-dataset-anda\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/3/action/statsworkflow_validator_revision",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"3",
+						"action",
+						"statsworkflow_validator_revision"
+					]
+				},
+				"description": "Menolak dan mengirim kembali dataset ke Editor untuk direvisi."
+			},
+			"response": []
+		},
+		{
+			"name": "5. Verificator Approve (Verificator)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{CKAN_API_KEY}}",
+						"description": "Isi dengan API Key user yang terdaftar sebagai Verifikator"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"nama-dataset-anda\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/3/action/statsworkflow_verificator_approve",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"3",
+						"action",
+						"statsworkflow_verificator_approve"
+					]
+				},
+				"description": "Menyetujui tahap verifikasi dan menyiapkannya untuk siap dipublikasikan."
+			},
+			"response": []
+		},
+		{
+			"name": "6. Verificator Request Revision (Verificator)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{CKAN_API_KEY}}",
+						"description": "Isi dengan API Key user yang terdaftar sebagai Verifikator"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"nama-dataset-anda\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/3/action/statsworkflow_verificator_revision",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"3",
+						"action",
+						"statsworkflow_verificator_revision"
+					]
+				},
+				"description": "Mengembalikan dataset ke Editor untuk direvisi dari tahap verifikasi."
+			},
+			"response": []
+		},
+		{
+			"name": "7. Publish Final (Publikator)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{CKAN_API_KEY}}",
+						"description": "Isi dengan API Key user yang terdaftar sebagai Publikator"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"nama-dataset-anda\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/3/action/statsworkflow_publish",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"3",
+						"action",
+						"statsworkflow_publish"
+					]
+				},
+				"description": "Mempublikasikan dataset ke publik (mengubah dataset menjadi Public)."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "CKAN_API_KEY",
+			"value": "isi_api_key_disini",
+			"type": "string"
+		}
+	]
+}

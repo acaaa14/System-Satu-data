@@ -369,34 +369,64 @@ class Dataset extends Controller
     public function topics()
     {
 
-        // Halaman Topik versi murni CKAN mengambil organisasi yang menjadi pemilik
-        // dataset di group `topik`. Kalau data di CKAN dihapus, item di portal ikut hilang.
-        $organizationNames = $this->getOrganizationNamesFromGroup($this->topicGroup);
+        // Halaman Topik portal dipetakan langsung ke CKAN Groups.
+        // Di CKAN, item seperti `sosial-dan-budaya` adalah group/topik itu sendiri,
+        // bukan organisasi di dalam group bernama `topik`.
+        $data = $this->requestCkan("/group_list?all_fields=true&include_dataset_count=true");
 
-        $topicOrganizations = [];
+        if (($data['success'] ?? false) !== true || ! is_array($data['result'] ?? null)) {
+            return $this->response->setJSON($data);
+        }
 
-        foreach ($organizationNames as $organizationName) {
-            $organizationData = $this->requestCkan(
-                "/organization_show?id=" . urlencode((string) $organizationName)
-            );
+        $groups = [];
 
-            if (($organizationData['success'] ?? false) !== true) {
+        foreach ($data['result'] as $group) {
+            if (! is_array($group)) {
                 continue;
             }
 
-            $organizationResult = $organizationData['result'] ?? null;
+            $groupName = (string) ($group['name'] ?? '');
 
-            if (! is_array($organizationResult)) {
+            if ($groupName === '' || $groupName === $this->publicationGroup) {
                 continue;
             }
 
-            $topicOrganizations[] = $organizationResult;
+            if (! array_key_exists('package_count', $group)) {
+                $groupDatasets = $this->requestCkan(
+                    "/package_search?rows=0&fq=" . urlencode('groups:' . $groupName)
+                );
+                $group['package_count'] = (int) ($groupDatasets['result']['count'] ?? 0);
+            }
+
+            $groups[] = $group;
         }
 
         return $this->response->setJSON([
             'success' => true,
-            'result' => $topicOrganizations,
+            'result' => $groups,
         ]);
+
+    }
+
+    // =============================
+    // LIST DATASET BERDASARKAN GROUP/TOPIK CKAN
+    // =============================
+
+    public function groupDatasets()
+    {
+
+        $group = trim((string) ($this->request->getGet("group") ?? ""));
+
+        if ($group === "") {
+            return $this->response->setJSON($this->emptyPackageSearchResult());
+        }
+
+        $resolvedGroupName = $this->resolveGroupName($group);
+        $data = $this->requestCkan(
+            "/package_search?rows=1000&fq=" . urlencode('groups:' . $resolvedGroupName)
+        );
+
+        return $this->response->setJSON($data);
 
     }
 

@@ -27,7 +27,11 @@ export const topicDefinitions = [
     key: "sosial-budaya",
     title: "Sosial dan Budaya",
     fallbackImage: sosialImage,
-    keywords: ["sosial budaya", "sosial dan budaya", "sosialbudaya"],
+    keywords: [
+      "sosial budaya",
+      "sosial dan budaya",
+      "sosialbudaya",
+    ],
   },
   {
     key: "covid-19",
@@ -50,6 +54,7 @@ export function getTopicMatchKey(organization) {
       organization?.title,
       organization?.display_name,
       organization?.name,
+      organization?.description,
     ]
       .filter(Boolean)
       .join(" "),
@@ -59,16 +64,24 @@ export function getTopicMatchKey(organization) {
     return ""
   }
 
-  // Helper ini jadi pusat pemisahan data:
-  // jika nama organisasi CKAN mengandung keyword topik tertentu,
-  // organisasi itu dianggap milik halaman Topik, bukan halaman Organisasi umum.
-  const match = topicDefinitions.find((topic) =>
-    topic.keywords.some((keyword) => haystack.includes(normalizeTopicValue(keyword))),
+  // Pencocokan keyword topik berdasarkan data CKAN group/organization.
+  const match = topicDefinitions.find((item) =>
+    item.keywords.some((keyword) =>
+      haystack.includes(normalizeTopicValue(keyword)),
+    ),
   )
 
   return match?.key || ""
 }
 
+// Helper ini jadi pusat pemisahan data:
+// jika nama organisasi/group CKAN mengandung keyword topik tertentu,
+// data tersebut dianggap milik halaman Topik.
+export function isTopicGroup(group) {
+  return Boolean(getTopicMatchKey(group))
+}
+
+// Tetap dipertahankan untuk kompatibilitas lama.
 export function isTopicOrganization(organization) {
   return Boolean(getTopicMatchKey(organization))
 }

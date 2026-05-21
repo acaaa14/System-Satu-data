@@ -1,0 +1,15 @@
+README.md
+setup.py
+ckanext/__init__.py
+ckanext/statsworkflow/__init__.py
+ckanext/statsworkflow/plugin.py
+ckanext/statsworkflow/templates/package/read.html
+ckanext/statsworkflow/templates/package/resource_read.html
+ckanext/statsworkflow/templates/package/snippets/resource_item.html
+ckanext/statsworkflow/templates/package/snippets/resources.html
+ckanext/statsworkflow/templates/package/snippets/workflow_actions.html
+ckanext_statsworkflow.egg-info/PKG-INFO
+ckanext_statsworkflow.egg-info/SOURCES.txt
+ckanext_statsworkflow.egg-info/dependency_links.txt
+ckanext_statsworkflow.egg-info/entry_points.txt
+ckanext_statsworkflow.egg-info/top_level.txt

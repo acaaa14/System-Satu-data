@@ -1,0 +1,9 @@
+{% ckan_extends %}
+
+{% block action_manage %}
+  {% if h.statsworkflow_can_edit_resources(pkg) %}
+    <li>{% link_for _('Edit resource'), named_route=pkg.type ~ '_resource.edit', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='pencil' %}</li>
+    {% block action_manage_inner %}{% endblock %}
+    <li>{% link_for _('Views'), named_route=pkg.type ~ '_resource.views', id=pkg.name, resource_id=res.id, class_='btn btn-default', icon='chart-bar' %}</li>
+  {% endif %}
+{% endblock action_manage %}

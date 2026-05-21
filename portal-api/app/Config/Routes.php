@@ -26,6 +26,7 @@ $routes->get('app/(:any)', 'Home::index/$1');
 $routes->get('api/datasets', 'Dataset::index');
 $routes->get('api/publications', 'Dataset::publications');
 $routes->get('api/topics', 'Dataset::topics');
+$routes->get('api/group-datasets', 'Dataset::groupDatasets');
 // Endpoint organisasi dipakai khusus untuk halaman daftar organisasi di frontend.
 $routes->get('api/organizations', 'Dataset::organizations');
 $routes->get('api/dataset/(:segment)', 'Dataset::show/$1');

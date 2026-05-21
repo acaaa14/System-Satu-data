@@ -1,0 +1,21 @@
+{% set status = pkg.stats_workflow_status %}
+{% set buttons = h.statsworkflow_buttons(pkg) %}
+
+<section class="module-content">
+  <h2>{{ _('Workflow Publikasi') }}</h2>
+  <p>
+    <strong>{{ _('Status') }}:</strong>
+    {{ h.statsworkflow_status_label(status) }}
+  </p>
+
+  {% if buttons %}
+    <div class="btn-group">
+      {% for button in buttons %}
+        <form method="post" action="{{ h.url_for('statsworkflow.transition', action_slug=button.slug, id=pkg.name) }}" style="display: inline-block; margin-right: 6px;">
+          {{ h.csrf_input() }}
+          <button type="submit" class="{{ button.class }}">{{ button.label }}</button>
+        </form>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>

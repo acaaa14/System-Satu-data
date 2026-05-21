@@ -26,15 +26,45 @@ Diagram ASCII ringkas untuk:
 ### `TODO.md`
 Daftar backlog teknis yang masih relevan dengan kondisi codebase sekarang.
 
+### `PEMETAAN_FRONTEND_BACKEND.md`
+Peta area frontend, backend, infrastruktur, dan CKAN extension. Dokumen ini juga mencatat tahapan teknis workflow CKAN, termasuk:
+- role `Validator`, `Verifikator`, dan `Publikator` di menu Members organisasi,
+- permission readonly untuk role workflow,
+- penyembunyian tombol edit resource,
+- file plugin/template yang terlibat.
+
 ## Cara Pakai
 
 - Untuk onboarding cepat: baca `README.md` lalu `DIAGRAM_ARSITEKTUR_VISUAL.md`.
 - Untuk audit fitur: baca `ANALISIS_SISTEM_ALIGNMENT_REQUIREMENT.md`.
 - Untuk next step pengembangan: buka `TODO.md`.
+- Untuk memahami perubahan workflow CKAN: buka `PEMETAAN_FRONTEND_BACKEND.md` bagian workflow.
 
 ## Catatan
 
 Beberapa dokumen lama di repo ini masih berorientasi presentasi/interview. Dokumen tersebut bisa tetap dipakai sebagai materi pendukung, tetapi acuan teknis paling akurat untuk codebase saat ini adalah empat file di atas.
+
+## Catatan Tambahan Pekerjaan Terbaru
+
+Pekerjaan terbaru yang sudah dicatat di dokumentasi:
+
+- perbaikan DataPusher/DataStore CKAN karena token API DataPusher tidak valid,
+- penyesuaian port DataPusher menjadi `8000:8000`,
+- integrasi halaman Topik portal dengan CKAN Groups,
+- penambahan endpoint `/api/group-datasets`,
+- detail dataset Topik dibuat seperti detail dataset Organisasi,
+- tabel dan grafik Topik/Organisasi membaca kolom `Tahun 2015` sampai `Tahun 2025`,
+- angka tahun diformat seperti contoh Excel, misalnya `77720` menjadi `77,720`,
+- baris header palsu dari Excel tidak lagi ditampilkan sebagai data,
+- list endpoint yang perlu dites di Postman,
+- penjelasan `visitor` sebagai counter kunjungan portal.
+
+Dokumen yang paling relevan untuk pekerjaan terbaru:
+
+- `LOGBOOK_PENGERJAAN.md`: catatan kronologis dan bukti file.
+- `PEMETAAN_FRONTEND_BACKEND.md`: peta bagian frontend/backend yang berubah.
+- `QUICK_START_GUIDE.md`: cara tes cepat endpoint API.
+- `README.md`: ringkasan fitur dan route terbaru.
 
 ## Bukti Implementasi di Kode
 
@@ -65,6 +95,11 @@ Pernyataan stack berikut sudah punya bukti langsung di codebase:
 - `Data Platform: CKAN`
   Bukti service CKAN ada di [docker-ckan/compose/services/ckan/ckan.yaml](/root/baru/docker-ckan/compose/services/ckan/ckan.yaml:3), dengan image `ghcr.io/keitaroinc/ckan:${CKAN_VERSION}`.
 
+- `Workflow publikasi CKAN`
+  Bukti extension workflow ada di [docker-ckan/extensions/ckanext-statsworkflow/ckanext/statsworkflow/plugin.py](/root/baru/docker-ckan/extensions/ckanext-statsworkflow/ckanext/statsworkflow/plugin.py:1).
+  Bukti template panel workflow ada di [docker-ckan/extensions/ckanext-statsworkflow/ckanext/statsworkflow/templates/package/snippets/workflow_actions.html](/root/baru/docker-ckan/extensions/ckanext-statsworkflow/ckanext/statsworkflow/templates/package/snippets/workflow_actions.html:1).
+  Bukti tombol edit resource disembunyikan untuk role readonly ada di [docker-ckan/extensions/ckanext-statsworkflow/ckanext/statsworkflow/templates/package/resource_read.html](/root/baru/docker-ckan/extensions/ckanext-statsworkflow/ckanext/statsworkflow/templates/package/resource_read.html:1).
+
 - `Database: PostgreSQL`
   Bukti PostgreSQL dipakai dalam stack container ada di [docker-ckan/compose/docker-compose.yml](/root/baru/docker-ckan/compose/docker-compose.yml:25), karena file compose utama meng-include service database.
 
@@ -77,3 +112,17 @@ Pernyataan stack berikut sudah punya bukti langsung di codebase:
 
 - `CodeIgniter 4 menampilkan halaman HTML ke browser`
   Bukti paling langsung ada di [portal-api/app/Controllers/Frontend.php](/root/baru/portal-api/app/Controllers/Frontend.php:22), karena controller mengembalikan response HTML dengan `setContentType('text/html')` dan `setBody(...)`.
+
+- `Topik membaca CKAN Groups`
+  Bukti route group dataset ada di [portal-api/app/Config/Routes.php](/root/baru/portal-api/app/Config/Routes.php:29).
+  Bukti backend membaca CKAN groups ada di [portal-api/app/Controllers/Dataset.php](/root/baru/portal-api/app/Controllers/Dataset.php:369).
+  Bukti frontend membuka dataset berdasarkan group ada di [portal-frontend/src/pages/Topik.jsx](/root/baru/portal-frontend/src/pages/Topik.jsx:260).
+
+- `Detail dataset Topik dan Organisasi memakai DataStore dan grafik`
+  Bukti detail Topik ada di [portal-frontend/src/pages/Topik.jsx](/root/baru/portal-frontend/src/pages/Topik.jsx:414).
+  Bukti detail Organisasi ada di [portal-frontend/src/pages/Organisasi.jsx](/root/baru/portal-frontend/src/pages/Organisasi.jsx:335).
+  Bukti komponen grafik ada di [portal-frontend/src/components/DatasetLineChart.jsx](/root/baru/portal-frontend/src/components/DatasetLineChart.jsx:1).
+
+- `DataPusher sudah dikonfigurasi ulang`
+  Bukti token DataPusher ada di [docker-ckan/compose/config/ckan/.env](/root/baru/docker-ckan/compose/config/ckan/.env:33).
+  Bukti port DataPusher ada di [docker-ckan/compose/services/datapusher/datapusher.yaml](/root/baru/docker-ckan/compose/services/datapusher/datapusher.yaml:6).

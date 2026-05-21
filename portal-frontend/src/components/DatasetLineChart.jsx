@@ -10,7 +10,9 @@ import {
 
 // Format angka grafik mengikuti format Indonesia agar sama dengan tabel dataset.
 function formatNumberLabel(value) {
-  return new Intl.NumberFormat("id-ID").format(value)
+  return new Intl.NumberFormat("id-ID", {
+    maximumFractionDigits: Number.isInteger(value) ? 0 : 3,
+  }).format(value)
 }
 
 export default function DatasetLineChart({ data }) {
@@ -20,8 +22,7 @@ export default function DatasetLineChart({ data }) {
         <CartesianGrid stroke="#e5e7eb" vertical={false} />
         <XAxis dataKey="year" label={{ value: "Tahun", position: "insideBottom", offset: -12 }} tickLine={false} />
         <YAxis
-          // Sumbu Y disingkat ribuan supaya grafik tetap ringkas.
-          tickFormatter={(value) => (value >= 1000 ? `${value / 1000}k` : value)}
+          tickFormatter={formatNumberLabel}
           label={{ value: "Jumlah", angle: -90, position: "insideLeft" }}
           tickLine={false}
         />

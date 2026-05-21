@@ -118,6 +118,7 @@ Service yang menjadi bagian arsitektur:
 | CKAN sebagai sumber data | Sesuai | Dipakai untuk dataset, organisasi, publikasi, topik, search, preview |
 | Login admin | Sesuai | Alur utama langsung ke CKAN lalu sinkronisasi session ke JWT portal |
 | Pembatasan visibility dataset | Sesuai | Editor hanya dapat membuat dataset Private; Public hanya untuk sysadmin dan admin organisasi |
+| Workflow publikasi dataset CKAN | Sesuai | Dataset memiliki status bertahap dan tombol aksi di halaman detail CKAN sesuai role editor, validator, verifikator, dan publikator |
 | Halaman publikasi | Sesuai | Data publikasi berasal dari CKAN group tertentu melalui backend |
 | Halaman topik | Sesuai | Lima topik utama tetap ada, tetapi isinya diperkaya dari CKAN |
 | Statistik portal | Sebagian | Sebagian dari CKAN, sebagian dari state lokal/helper frontend |
@@ -144,6 +145,19 @@ Implementasi dilakukan melalui extension `ckanext-restrict_visibility` agar peru
 - lapisan tampilan CKAN melalui override template, untuk menyembunyikan opsi `Public` dari dropdown Visibility bagi editor.
 
 Dengan pendekatan ini, pembatasan tidak hanya terjadi di tampilan. Jika editor mencoba mengirim nilai `private=False` melalui request manual atau API, backend CKAN tetap melakukan validasi dan menolak perubahan tersebut.
+
+### Workflow publikasi dataset CKAN
+
+Sistem juga memakai extension `ckanext-statsworkflow` untuk mengatur alur publikasi dataset secara bertahap. Status workflow disimpan di dataset extras dengan key `stats_workflow_status`, tetapi field tersebut tidak boleh diubah manual dari form Custom Field CKAN.
+
+Perubahan status dilakukan melalui action internal CKAN agar alurnya tetap terkunci:
+
+- editor mengirim dataset dari `draft`, `revision_from_validator`, atau `revision_from_verificator` ke `waiting_validation`,
+- validator dapat mengubah `waiting_validation` menjadi `revision_from_validator` atau `waiting_verification`,
+- verifikator dapat mengubah `waiting_verification` menjadi `revision_from_verificator` atau `waiting_publish`,
+- publikator dapat mengubah `waiting_publish` menjadi `published`.
+
+Untuk memudahkan user non-teknis, extension menambahkan panel **Workflow Publikasi** di halaman detail dataset CKAN. Panel ini menampilkan status saat ini dan tombol aksi yang hanya muncul jika status dataset dan role user sesuai. Tombol UI tersebut tetap memanggil action `statsworkflow_*` di backend, sehingga tidak membuka celah untuk melompati alur validasi.
 
 ## 7. Bukti Implementasi di Kode
 
@@ -381,3 +395,73 @@ include:
 ## 8. Kesimpulan
 
 Secara implementasi, sistem sudah berbentuk portal data terpadu yang berjalan di atas React + CodeIgniter 4 + CKAN dengan login admin berbasis session CKAN. Tantangan terbesarnya bukan lagi arsitektur inti, tetapi sinkronisasi dokumentasi, konsolidasi routing frontend, dan penyederhanaan logika yang saat ini masih campuran antara definisi statis frontend dan sumber data CKAN.
+
+## 9. Tambahan Analisis Pekerjaan Terbaru
+
+Bagian ini ditambahkan sebagai catatan lanjutan tanpa menghapus analisis lama.
+
+### 9.1 Integrasi Topik dengan CKAN Groups
+
+Halaman Topik sudah diperbaiki agar membaca CKAN Groups secara langsung. Topik seperti `sosial-dan-budaya` diperlakukan sebagai group CKAN, bukan sebagai organisasi di dalam group bernama `topik`.
+
+Implikasi teknis:
+
+- count dataset pada kartu Topik mengikuti `package_count` CKAN group,
+- dataset Topik diambil melalui backend endpoint `/api/group-datasets?group=...`,
+- jika dataset di CKAN dimasukkan ke group `sosial-dan-budaya`, portal bisa menampilkannya di halaman Topik.
+
+Bukti implementasi:
+
+- [Dataset::topics](/root/baru/portal-api/app/Controllers/Dataset.php:369)
+- [Dataset::groupDatasets](/root/baru/portal-api/app/Controllers/Dataset.php:415)
+- [route group-datasets](/root/baru/portal-api/app/Config/Routes.php:29)
+- [fetchGroupDatasets](/root/baru/portal-frontend/src/utils/ckan.js:43)
+
+### 9.2 Detail Dataset Topik dan Organisasi
+
+Detail dataset pada Topik dan Organisasi sekarang sama-sama mengambil data dari CKAN/DataStore. Keduanya menampilkan:
+
+- tombol download,
+- tabel preview DataStore,
+- grafik garis dari kolom tahun,
+- format angka yang disesuaikan dengan data Excel.
+
+Bukti implementasi:
+
+- [detail Topik](/root/baru/portal-frontend/src/pages/Topik.jsx:414)
+- [detail Organisasi](/root/baru/portal-frontend/src/pages/Organisasi.jsx:335)
+- [grafik dataset](/root/baru/portal-frontend/src/components/DatasetLineChart.jsx:1)
+
+### 9.3 Normalisasi Data Excel/DataStore
+
+Data dari Excel bisa menghasilkan field `Tahun 2015`, `Tahun 2016`, dan seterusnya. Frontend sekarang membaca pola tersebut agar tabel dan grafik tidak bergantung pada header `2015` saja.
+
+Normalisasi yang dilakukan:
+
+- membaca angka tahun dari nama kolom,
+- mengubah nilai seperti `77720` menjadi `77,720`,
+- mempertahankan nilai `100` sebagai `100`,
+- membuang baris header palsu yang ikut terkirim sebagai record DataStore,
+- memakai baris data asli pertama sebagai sumber grafik.
+
+Bukti implementasi:
+
+- [normalisasi Topik](/root/baru/portal-frontend/src/pages/Topik.jsx:116)
+- [normalisasi Organisasi](/root/baru/portal-frontend/src/pages/Organisasi.jsx:120)
+
+### 9.4 Perbaikan DataPusher
+
+Error upload DataStore `unable to post to result_url` disebabkan token API DataPusher tidak valid. Perbaikan dilakukan dengan membuat token baru, mengganti environment CKAN, menyesuaikan port DataPusher, dan recreate service terkait.
+
+Bukti implementasi:
+
+- [token DataPusher](/root/baru/docker-ckan/compose/config/ckan/.env:33)
+- [service DataPusher](/root/baru/docker-ckan/compose/services/datapusher/datapusher.yaml:6)
+
+### 9.5 API Testing
+
+API yang perlu dites di Postman sudah dicatat di `QUICK_START_GUIDE.md`, mencakup endpoint portal dan endpoint CKAN langsung.
+
+Bukti dokumentasi:
+
+- [Quick Test API](/root/baru/QUICK_START_GUIDE.md)
