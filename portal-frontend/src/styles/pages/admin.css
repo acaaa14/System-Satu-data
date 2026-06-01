@@ -279,6 +279,64 @@
   color: #1f7a42;
 }
 
+.admin-badge.is-waiting-validation {
+  background: #e9f4ff;
+  border-color: #bcd9fb;
+  color: #1d5cae;
+}
+
+.admin-badge.is-waiting-verification {
+  background: #fff6eb;
+  border-color: #fbd6a9;
+  color: #b25e00;
+}
+
+.admin-badge.is-waiting-publish {
+  background: #f7f1ff;
+  border-color: #dec8fb;
+  color: #6c40b5;
+}
+
+.admin-badge.is-revision {
+  background: #fff0f0;
+  border-color: #fbc7c7;
+  color: #c53030;
+}
+
+.workflow-card {
+  border: 1px solid #d9e2ee !important;
+}
+
+.workflow-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -10px rgba(20, 35, 79, 0.15) !important;
+}
+
+.workflow-card.active {
+  border-color: #1d5cae !important;
+  box-shadow: 0 0 0 3px rgba(29, 92, 174, 0.15) !important;
+}
+
+.workflow-card.is-validation:hover, .workflow-card.is-validation.active {
+  background: linear-gradient(180deg, #fff 0%, #f4f9ff 100%) !important;
+  border-color: #8cbcfc !important;
+}
+
+.workflow-card.is-verification:hover, .workflow-card.is-verification.active {
+  background: linear-gradient(180deg, #fff 0%, #fffbf5 100%) !important;
+  border-color: #f7c385 !important;
+}
+
+.workflow-card.is-publish:hover, .workflow-card.is-publish.active {
+  background: linear-gradient(180deg, #fff 0%, #faf5ff 100%) !important;
+  border-color: #d1b3fc !important;
+}
+
+.workflow-card.is-draft:hover, .workflow-card.is-draft.active {
+  background: linear-gradient(180deg, #fff 0%, #f7f9fc 100%) !important;
+  border-color: #cbd5e0 !important;
+}
+
 .admin-actions,
 .admin-detail__badges,
 .admin-detail__buttons,

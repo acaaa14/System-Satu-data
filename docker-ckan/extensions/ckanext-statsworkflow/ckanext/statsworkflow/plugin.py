@@ -247,6 +247,41 @@ def _set_extra(pkg_dict, key, value):
     pkg_dict['extras'] = extras
 
 
+def get_workflow_counts():
+    try:
+        # Query PostgreSQL directly for performance and accuracy
+        query = model.Session.query(model.PackageExtra.value)\
+            .join(model.Package, model.Package.id == model.PackageExtra.package_id)\
+            .filter(model.PackageExtra.key == 'stats_workflow_status')\
+            .filter(model.Package.state == 'active')
+        
+        counts = {
+            'waiting_validation': 0,
+            'waiting_verification': 0,
+            'waiting_publish': 0,
+            'draft': 0,
+            'published': 0
+        }
+        
+        for row in query.all():
+            val = row[0]
+            if val in counts:
+                counts[val] += 1
+            elif 'revision' in val:
+                counts['draft'] += 1
+        
+        return counts
+    except Exception as e:
+        log.error("Error getting workflow counts: %s", e)
+        return {
+            'waiting_validation': 0,
+            'waiting_verification': 0,
+            'waiting_publish': 0,
+            'draft': 0,
+            'published': 0
+        }
+
+
 def _workflow_status(pkg_dict):
     status = _get_extra(pkg_dict, STATUS_FIELD, DRAFT)
     if status not in ALL_STATUSES:
@@ -608,6 +643,7 @@ class StatsWorkflowPlugin(p.SingletonPlugin):
             'statsworkflow_can_edit_resources': can_edit_resources,
             'statsworkflow_status_label': workflow_status_label,
             'statsworkflow_buttons': workflow_buttons,
+            'statsworkflow_counts': get_workflow_counts,
         }
 
     def get_blueprint(self):

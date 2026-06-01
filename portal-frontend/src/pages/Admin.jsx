@@ -174,6 +174,31 @@ function Admin() {
           return dataset.adminFeatured
         }
 
+        // Filter status workflow dari CKAN extras
+        const extras = dataset.extras || []
+        const statusExtra = extras.find((e) => e.key === "stats_workflow_status")
+        const workflowStatus = statusExtra ? statusExtra.value : "draft"
+
+        if (statusFilter === "waiting_validation") {
+          return workflowStatus === "waiting_validation"
+        }
+
+        if (statusFilter === "waiting_verification") {
+          return workflowStatus === "waiting_verification"
+        }
+
+        if (statusFilter === "waiting_publish") {
+          return workflowStatus === "waiting_publish"
+        }
+
+        if (statusFilter === "published") {
+          return workflowStatus === "published"
+        }
+
+        if (statusFilter === "draft") {
+          return workflowStatus === "draft" || workflowStatus.includes("revision")
+        }
+
         return true
       })
       .sort((left, right) => {
@@ -377,7 +402,41 @@ function Admin() {
     const hidden = total - visible
     const featured = datasets.filter((dataset) => dataset.adminFeatured).length
 
-    return { total, visible, hidden, featured }
+    let waitingValidation = 0
+    let waitingVerification = 0
+    let waitingPublish = 0
+    let draftCount = 0
+    let publishedCount = 0
+
+    datasets.forEach((dataset) => {
+      const extras = dataset.extras || []
+      const statusExtra = extras.find((e) => e.key === "stats_workflow_status")
+      const status = statusExtra ? statusExtra.value : "draft"
+
+      if (status === "waiting_validation") {
+        waitingValidation++
+      } else if (status === "waiting_verification") {
+        waitingVerification++
+      } else if (status === "waiting_publish") {
+        waitingPublish++
+      } else if (status === "draft" || status.includes("revision")) {
+        draftCount++
+      } else if (status === "published") {
+        publishedCount++
+      }
+    })
+
+    return {
+      total,
+      visible,
+      hidden,
+      featured,
+      waitingValidation,
+      waitingVerification,
+      waitingPublish,
+      draftCount,
+      publishedCount,
+    }
   }, [datasets])
 
   return (
@@ -430,6 +489,50 @@ function Admin() {
         </article>
       </section>
 
+      <div className="admin-section-title mt-4" style={{ marginBottom: "12px" }}>
+        <h3 style={{ color: "#122451", fontSize: "1.35rem", fontWeight: "700" }}>Antrean Persetujuan Data (Workflow)</h3>
+        <p className="text-muted" style={{ margin: 0, fontSize: "0.92rem", color: "#6b7891" }}>Klik pada salah satu kartu di bawah ini untuk menyaring dataset yang memerlukan pemeriksaan Anda.</p>
+      </div>
+
+      <section className="admin-overview" style={{ marginTop: "14px" }}>
+        <article 
+          className={`admin-overview-card workflow-card is-validation ${statusFilter === "waiting_validation" ? "active" : ""}`}
+          onClick={() => setStatusFilter(statusFilter === "waiting_validation" ? "all" : "waiting_validation")}
+          style={{ cursor: "pointer", transition: "all 0.25s ease" }}
+        >
+          <span>Menunggu Validasi</span>
+          <strong style={{ color: "#1d5cae" }}>{datasetStats.waitingValidation}</strong>
+          <small>{statusFilter === "waiting_validation" ? "✓ Menyaring data" : "Klik untuk menyaring (Validator)"}</small>
+        </article>
+        <article 
+          className={`admin-overview-card workflow-card is-verification ${statusFilter === "waiting_verification" ? "active" : ""}`}
+          onClick={() => setStatusFilter(statusFilter === "waiting_verification" ? "all" : "waiting_verification")}
+          style={{ cursor: "pointer", transition: "all 0.25s ease" }}
+        >
+          <span>Menunggu Verifikasi</span>
+          <strong style={{ color: "#b25e00" }}>{datasetStats.waitingVerification}</strong>
+          <small>{statusFilter === "waiting_verification" ? "✓ Menyaring data" : "Klik untuk menyaring (Verifikator)"}</small>
+        </article>
+        <article 
+          className={`admin-overview-card workflow-card is-publish ${statusFilter === "waiting_publish" ? "active" : ""}`}
+          onClick={() => setStatusFilter(statusFilter === "waiting_publish" ? "all" : "waiting_publish")}
+          style={{ cursor: "pointer", transition: "all 0.25s ease" }}
+        >
+          <span>Menunggu Publish</span>
+          <strong style={{ color: "#6c40b5" }}>{datasetStats.waitingPublish}</strong>
+          <small>{statusFilter === "waiting_publish" ? "✓ Menyaring data" : "Klik untuk menyaring (Publikator)"}</small>
+        </article>
+        <article 
+          className={`admin-overview-card workflow-card is-draft ${statusFilter === "draft" ? "active" : ""}`}
+          onClick={() => setStatusFilter(statusFilter === "draft" ? "all" : "draft")}
+          style={{ cursor: "pointer", transition: "all 0.25s ease" }}
+        >
+          <span>Draft / Revisi</span>
+          <strong style={{ color: "#66748f" }}>{datasetStats.draftCount}</strong>
+          <small>{statusFilter === "draft" ? "✓ Menyaring data" : "Klik untuk menyaring (Editor)"}</small>
+        </article>
+      </section>
+
       <section className="admin-layout">
         <div className="admin-main">
           <div className="admin-panel">
@@ -457,6 +560,11 @@ function Admin() {
                 <option value="visible">Hanya Tampil</option>
                 <option value="hidden">Hanya Tersembunyi</option>
                 <option value="featured">Hanya Unggulan</option>
+                <option value="waiting_validation">Status: Menunggu Validasi</option>
+                <option value="waiting_verification">Status: Menunggu Verifikasi</option>
+                <option value="waiting_publish">Status: Menunggu Publish</option>
+                <option value="published">Status: Published (Terbit)</option>
+                <option value="draft">Status: Draft / Revisi</option>
               </select>
             </div>
 
@@ -472,7 +580,8 @@ function Admin() {
                   <thead>
                     <tr>
                       <th>Dataset</th>
-                      <th>Status</th>
+                      <th>Visibilitas Portal</th>
+                      <th>Alur Persetujuan</th>
                       <th>Unggulan</th>
                       <th>Resource</th>
                       <th>Aksi</th>
@@ -481,6 +590,31 @@ function Admin() {
                   <tbody>
                     {filteredDatasets.map((dataset) => {
                       const datasetId = getDatasetKey(dataset)
+
+                      // Membaca status workflow kustom
+                      const extras = dataset.extras || []
+                      const statusExtra = extras.find((e) => e.key === "stats_workflow_status")
+                      const workflowStatus = statusExtra ? statusExtra.value : "draft"
+
+                      let workflowBadgeClass = "is-hidden"
+                      let workflowLabel = "Draft"
+
+                      if (workflowStatus === "waiting_validation") {
+                        workflowBadgeClass = "is-waiting-validation"
+                        workflowLabel = "Menunggu Validasi"
+                      } else if (workflowStatus === "waiting_verification") {
+                        workflowBadgeClass = "is-waiting-verification"
+                        workflowLabel = "Menunggu Verifikasi"
+                      } else if (workflowStatus === "waiting_publish") {
+                        workflowBadgeClass = "is-waiting-publish"
+                        workflowLabel = "Menunggu Publish"
+                      } else if (workflowStatus === "published") {
+                        workflowBadgeClass = "is-visible"
+                        workflowLabel = "Published"
+                      } else if (workflowStatus.includes("revision")) {
+                        workflowBadgeClass = "is-revision"
+                        workflowLabel = "Revisi"
+                      }
 
                       return (
                         <tr
@@ -497,6 +631,11 @@ function Admin() {
                           <td>
                             <span className={`admin-badge ${dataset.adminVisible ? "is-visible" : "is-hidden"}`}>
                               {dataset.adminVisible ? "Tampil" : "Tersembunyi"}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`admin-badge ${workflowBadgeClass}`}>
+                              {workflowLabel}
                             </span>
                           </td>
                           <td>
