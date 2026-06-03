@@ -14,6 +14,12 @@ from ckan.common import _, current_user
 log = logging.getLogger(__name__)
 
 STATUS_FIELD = 'stats_workflow_status'
+# Note filter UI:
+# CKAN mengubah semua query parameter non-standar menjadi facet otomatis.
+# Karena itu filter status dari halaman /dataset memakai prefix ext_ supaya
+# tidak muncul sebagai pill "None: published" dan bisa diproses manual di hook
+# before_dataset_search menjadi filter Solr stats_workflow_status.
+STATUS_FILTER_PARAM = 'ext_statsworkflow_status'
 
 DRAFT = 'draft'
 WAITING_VALIDATION = 'waiting_validation'
@@ -31,6 +37,14 @@ ALL_STATUSES = (
     REVISION_FROM_VERIFICATOR,
     WAITING_PUBLISH,
     PUBLISHED,
+)
+
+WORKFLOW_SEARCH_FILTERS = (
+    {'value': DRAFT, 'label': _('Draft')},
+    {'value': WAITING_VALIDATION, 'label': _('Waiting Validation')},
+    {'value': WAITING_VERIFICATION, 'label': _('Waiting Verifikator')},
+    {'value': PUBLISHED, 'label': _('Published')},
+    {'value': 'private', 'label': _('Private')},
 )
 
 EDITOR_EDITABLE_STATUSES = (
@@ -489,6 +503,21 @@ def workflow_status_label(status):
     }.get(status, status)
 
 
+def workflow_search_filters():
+    return WORKFLOW_SEARCH_FILTERS
+
+
+def _append_search_filter(search_params, clause):
+    current = search_params.get('fq')
+
+    if isinstance(current, list):
+        current.append(clause)
+        search_params['fq'] = current
+        return
+
+    search_params['fq'] = '{} {}'.format(current, clause) if current else clause
+
+
 def workflow_buttons(pkg_dict):
     # Menentukan tombol yang boleh muncul berdasarkan status dataset dan role
     # user. Tombol disembunyikan jika check_access menolak action terkait.
@@ -644,6 +673,7 @@ class StatsWorkflowPlugin(p.SingletonPlugin):
             'statsworkflow_status_label': workflow_status_label,
             'statsworkflow_buttons': workflow_buttons,
             'statsworkflow_counts': get_workflow_counts,
+            'statsworkflow_search_filters': workflow_search_filters,
         }
 
     def get_blueprint(self):
@@ -721,6 +751,41 @@ class StatsWorkflowPlugin(p.SingletonPlugin):
         pass
 
     def before_dataset_search(self, search_params):
+        # Note alur filter:
+        # Dropdown Status mengirim ext_statsworkflow_status. CKAN menyimpannya
+        # di search_params['extras'], lalu hook ini mengubahnya menjadi fq Solr.
+        # Status non-published umumnya private, jadi include_private dinyalakan;
+        # CKAN tetap membatasi hasil sesuai permission user yang sedang login.
+        workflow_status = None
+
+        try:
+            workflow_status = tk.request.args.get(STATUS_FILTER_PARAM)
+        except (RuntimeError, AttributeError):
+            workflow_status = None
+
+        extras = search_params.get('extras') or {}
+        workflow_status = workflow_status or search_params.pop(
+            STATUS_FILTER_PARAM,
+            None,
+        ) or extras.get(STATUS_FILTER_PARAM)
+
+        allowed_filters = {
+            item['value']
+            for item in WORKFLOW_SEARCH_FILTERS
+        }
+        if workflow_status not in allowed_filters:
+            return search_params
+
+        search_params['include_private'] = True
+
+        if workflow_status == 'private':
+            _append_search_filter(search_params, 'private:true')
+        else:
+            _append_search_filter(
+                search_params,
+                '{}:"{}"'.format(STATUS_FIELD, workflow_status),
+            )
+
         return search_params
 
     def after_dataset_search(self, search_results, search_params):

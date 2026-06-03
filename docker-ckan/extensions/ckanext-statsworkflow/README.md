@@ -18,6 +18,45 @@ Status disimpan di dataset extras dengan key:
 stats_workflow_status
 ```
 
+## Filter status dataset di CKAN
+
+Halaman daftar dataset CKAN (`/dataset`) memiliki dropdown **Status** di area
+yang sama dengan **Order by**. Dropdown ini menampilkan:
+
+- `draft`
+- `waiting_validation`
+- `waiting_verification`
+- `published`
+- `private`
+
+Filter tidak memakai parameter `workflow_status`, karena CKAN akan menganggap
+parameter non-standar sebagai facet otomatis dan dapat menampilkan pill seperti
+`None: published`. Karena itu UI memakai parameter:
+
+```text
+ext_statsworkflow_status
+```
+
+Plugin lalu menerjemahkan parameter tersebut di `before_dataset_search` menjadi
+filter Solr pada field:
+
+```text
+stats_workflow_status
+```
+
+Contoh URL:
+
+```text
+http://localhost:5000/dataset?ext_statsworkflow_status=published
+http://localhost:5000/dataset?ext_statsworkflow_status=draft
+http://localhost:5000/dataset?ext_statsworkflow_status=waiting_validation
+```
+
+Catatan akses: status selain `published` biasanya masih `private=True`, jadi
+hasilnya hanya muncul untuk user login yang memang punya izin melihat dataset
+private tersebut. Jika data sudah ada di database tetapi belum muncul di filter,
+pastikan search index CKAN/Solr sudah diperbarui.
+
 ## Prinsip private/public
 
 - Dataset baru selalu `private=True`.

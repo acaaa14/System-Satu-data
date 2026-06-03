@@ -1,0 +1,21 @@
+{% ckan_extends %}
+
+{% block search_sortby %}
+  {{ super() }}
+
+  {% if type in ['dataset', 'package'] %}
+    {# Note: gunakan ext_statsworkflow_status agar CKAN tidak menjadikannya
+       facet otomatis. Plugin akan menerjemahkannya ke fq Solr. #}
+    {% set selected_workflow_status = request.args.get('ext_statsworkflow_status', '') %}
+    <div class="form-group control-order-by">
+      <label for="workflow-status-filter">{{ _('Status') }}</label>
+      <select id="workflow-status-filter" name="ext_statsworkflow_status" class="form-control form-select">
+        <option value="">{{ _('Semua status') }}</option>
+        {% for item in h.statsworkflow_search_filters() %}
+          <option value="{{ item.value }}"{% if selected_workflow_status == item.value %} selected="selected"{% endif %}>{{ item.label }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-default js-hide" type="submit">{{ _('Go') }}</button>
+    </div>
+  {% endif %}
+{% endblock %}
