@@ -33,9 +33,16 @@ Peta area frontend, backend, infrastruktur, dan CKAN extension. Dokumen ini juga
 - penyembunyian tombol edit resource,
 - file plugin/template yang terlibat.
 
+### `ALUR_SISTEM.md`
+Dokumen alur sistem end-to-end:
+- alur keseluruhan dari browser sampai CKAN,
+- alur per bagian frontend,
+- alur per endpoint backend,
+- alur login, workflow CKAN, role, dan debugging cepat.
+
 ## Cara Pakai
 
-- Untuk onboarding cepat: baca `README.md` lalu `DIAGRAM_ARSITEKTUR_VISUAL.md`.
+- Untuk onboarding cepat: baca `README.md`, `ALUR_SISTEM.md`, lalu `DIAGRAM_ARSITEKTUR_VISUAL.md`.
 - Untuk audit fitur: baca `ANALISIS_SISTEM_ALIGNMENT_REQUIREMENT.md`.
 - Untuk next step pengembangan: buka `TODO.md`.
 - Untuk memahami perubahan workflow CKAN: buka `PEMETAAN_FRONTEND_BACKEND.md` bagian workflow.

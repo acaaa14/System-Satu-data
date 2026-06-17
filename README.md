@@ -127,7 +127,7 @@ Alur tombol:
 - Editor: `draft` atau status revisi -> **Kirim ke Validator**.
 - Validator: `waiting_validation` -> **Minta Revisi** atau **Setujui Validasi**.
 - Verifikator: `waiting_verification` -> **Minta Revisi** atau **Setujui Verifikasi**.
-- Publikator: `waiting_publish` -> **Publish**.
+- Publikator: `waiting_publish` -> **Publish**, lalu `published` -> **Jadikan Private** jika dataset perlu ditarik kembali.
 
 Role workflow dikelola dari halaman organisasi CKAN:
 
@@ -141,7 +141,7 @@ Role tambahan yang tersedia:
 - `Verifikator`
 - `Publikator`
 
-Ketiga role tersebut readonly. Mereka bisa melihat dataset/resource internal organisasi, tetapi tidak bisa mengedit dataset, mengedit resource/file, atau menambah resource. Tombol **Edit resource** dan **Add new resource** juga disembunyikan dari UI untuk role tersebut.
+Ketiga role tersebut readonly untuk edit dataset/resource biasa. Mereka bisa melihat dataset/resource internal organisasi, tetapi tidak bisa mengedit dataset, mengedit resource/file, atau menambah resource. Khusus **Publikator**, aksi publish dan jadikan private tetap tersedia lewat tombol workflow. Tombol **Edit resource** dan **Add new resource** juga disembunyikan dari UI untuk role tersebut.
 
 Panel **Workflow Publikasi** ditambahkan oleh extension `ckanext-statsworkflow` di halaman:
 
@@ -225,6 +225,7 @@ GET http://localhost:5000/api/3/action/datastore_search?resource_id=003a71e0-098
 ## Dokumentasi Tambahan
 
 - [DOKUMENTASI_INDEX.md](./DOKUMENTASI_INDEX.md)
+- [ALUR_SISTEM.md](./ALUR_SISTEM.md)
 - [ANALISIS_SISTEM_ALIGNMENT_REQUIREMENT.md](./ANALISIS_SISTEM_ALIGNMENT_REQUIREMENT.md)
 - [DIAGRAM_ARSITEKTUR_VISUAL.md](./DIAGRAM_ARSITEKTUR_VISUAL.md)
 - [TODO.md](./TODO.md)

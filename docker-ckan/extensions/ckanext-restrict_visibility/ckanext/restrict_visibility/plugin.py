@@ -2,6 +2,7 @@ import csv
 from html.parser import HTMLParser
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
+from ckan.common import current_user
 
 
 class _HtmlTableParser(HTMLParser):
@@ -132,6 +133,22 @@ def _check_access(action, context=None, data_dict=None):
         return False
 
 
+def _request_context(context=None):
+    if context:
+        return context
+
+    try:
+        if current_user and not current_user.is_anonymous:
+            return {
+                'user': current_user.name,
+                'auth_user_obj': current_user,
+            }
+    except AttributeError:
+        pass
+
+    return {}
+
+
 def _organization_id(data_dict):
     # CKAN bisa mengirim organisasi dataset lewat beberapa nama field,
     # tergantung form create/update yang sedang dipakai.
@@ -176,6 +193,8 @@ class RestrictVisibilityPlugin(p.SingletonPlugin):
     def can_set_public(self, data_dict=None, context=None):
         # Public hanya boleh untuk sysadmin atau admin organisasi.
         # Admin organisasi dianggap punya akses organization_update.
+        context = _request_context(context)
+
         if _check_access('sysadmin', context):
             return True
 

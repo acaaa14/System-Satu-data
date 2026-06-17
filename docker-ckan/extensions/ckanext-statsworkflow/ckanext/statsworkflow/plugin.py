@@ -104,6 +104,12 @@ WORKFLOW_ACTIONS = {
         'class': 'btn btn-success',
         'source_statuses': (WAITING_PUBLISH,),
     },
+    'unpublish': {
+        'action': 'statsworkflow_unpublish',
+        'label': _('Jadikan Private'),
+        'class': 'btn btn-warning',
+        'source_statuses': (PUBLISHED,),
+    },
 }
 
 
@@ -116,6 +122,14 @@ def _username(context):
 
 def _is_sysadmin(context):
     user_obj = context.get('auth_user_obj')
+    if user_obj and getattr(user_obj, 'sysadmin', False):
+        return True
+
+    username = context.get('user')
+    if not username:
+        return False
+
+    user_obj = model.User.get(username)
     return bool(user_obj and getattr(user_obj, 'sysadmin', False))
 
 
@@ -389,10 +403,27 @@ def package_update(original_action, context, data_dict):
         if _has_extra(data_dict, STATUS_FIELD)
         else current_status
     )
+
+    if (
+        _is_sysadmin(context)
+        and not context.get('statsworkflow_transition')
+        and not _has_extra(data_dict, STATUS_FIELD)
+        and 'private' in data_dict
+    ):
+        requested_private = data_dict.get('private')
+        if isinstance(requested_private, str):
+            requested_private = requested_private.lower() == 'true'
+
+        if requested_private is False:
+            requested_status = PUBLISHED
+        elif current_status == PUBLISHED:
+            requested_status = DRAFT
+
     if not context.get('statsworkflow_transition') and requested_status != current_status:
-        raise tk.NotAuthorized(
-            'Status workflow hanya boleh berubah lewat action statsworkflow'
-        )
+        if not _is_sysadmin(context):
+            raise tk.NotAuthorized(
+                'Status workflow hanya boleh berubah lewat action statsworkflow'
+            )
 
     _set_extra(data_dict, STATUS_FIELD, requested_status)
     data_dict['private'] = requested_status != PUBLISHED
@@ -469,11 +500,26 @@ def statsworkflow_verificator_revision(context, data_dict):
 
 
 def statsworkflow_publish(context, data_dict):
+    source_statuses = tuple(
+        status for status in ALL_STATUSES
+        if status != PUBLISHED
+    ) if _is_sysadmin(context) else (WAITING_PUBLISH,)
+
     return _transition(
         context,
         data_dict,
-        (WAITING_PUBLISH,),
+        source_statuses,
         PUBLISHED,
+        'publikator',
+    )
+
+
+def statsworkflow_unpublish(context, data_dict):
+    return _transition(
+        context,
+        data_dict,
+        (PUBLISHED,),
+        DRAFT,
         'publikator',
     )
 
@@ -526,7 +572,11 @@ def workflow_buttons(pkg_dict):
     buttons = []
 
     for slug, item in WORKFLOW_ACTIONS.items():
-        if status not in item['source_statuses']:
+        if status not in item['source_statuses'] and not (
+            _is_sysadmin(context)
+            and slug == 'publish'
+            and status != PUBLISHED
+        ):
             continue
 
         try:
@@ -699,6 +749,7 @@ class StatsWorkflowPlugin(p.SingletonPlugin):
             'statsworkflow_verificator_approve': statsworkflow_verificator_approve,
             'statsworkflow_verificator_revision': statsworkflow_verificator_revision,
             'statsworkflow_publish': statsworkflow_publish,
+            'statsworkflow_unpublish': statsworkflow_unpublish,
         }
 
     def get_auth_functions(self):
@@ -715,6 +766,7 @@ class StatsWorkflowPlugin(p.SingletonPlugin):
             'statsworkflow_verificator_approve': statsworkflow_verificator_auth,
             'statsworkflow_verificator_revision': statsworkflow_verificator_auth,
             'statsworkflow_publish': statsworkflow_publikator_auth,
+            'statsworkflow_unpublish': statsworkflow_publikator_auth,
         }
 
     def before_dataset_index(self, pkg_dict):
