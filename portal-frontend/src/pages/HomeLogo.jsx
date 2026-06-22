@@ -6,10 +6,19 @@ import logoKominfo from "../assets/img/logokominfo.png"
 import "../styles/pages/home-logo.css"
 
 const featureCards = [
-  { image: geospasialImage, label: "Geospasial" },
+  { image: geospasialImage, 
+    label: "Geospasial",
+    link: "https://maps.tangerangkota.go.id/"
+   },
   { image: statistikImage, label: "Statistik" },
-  { image: perencanaanImage, label: "Perencanaan Penganggaran" },
+  
+  {
+    image: perencanaanImage,
+    label: "Perencanaan Penganggaran",
+    link: "https://e-sakip.tangerangkota.go.id/"
+  },
 ]
+
 
 export default function HomeLogo() {
   return (
@@ -25,12 +34,18 @@ export default function HomeLogo() {
 
           <div className="logo-home__features">
             {featureCards.map((item) => (
-              <article key={item.label} className="logo-home__feature">
+              <a
+                key={item.label}
+                href={item.link}
+                className="logo-home__feature"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <div className="logo-home__feature-icon" aria-hidden="true">
                   <img src={item.image} alt="" />
                 </div>
                 <span>{item.label}</span>
-              </article>
+              </a>
             ))}
           </div>
         </div>
@@ -43,7 +58,13 @@ export default function HomeLogo() {
       <div className="logo-home__bottom container">
         <p>Copyright © 2022 - 2026. Pemerintah Kota Tangerang.</p>
         <div className="logo-home__bottom-logos">
-          <img src={logoKominfo} alt="Kominfo" />
+          <a
+            href="https://pse.layanan.go.id/login"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src={logoKominfo} alt="Kominfo" />
+          </a>
         </div>
       </div>
     </section>

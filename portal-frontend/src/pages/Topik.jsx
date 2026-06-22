@@ -12,6 +12,7 @@ import {
   topicDefinitions,
 } from "../utils/topics"
 import { CKAN_BASE_URL } from "../utils/ckanAuth"
+import { exportToXLS, exportToXML, exportToJSON, exportToPDF } from "../utils/export"
 
 import "../styles/pages/topik.css"
 
@@ -502,17 +503,22 @@ export default function Topik() {
                 <h1>{getDatasetTitle(selectedDataset)}</h1>
                 <div className="topik-dataset-detail-card__downloads">
                   <span>Download :</span>
-                  {downloadFormats.map((format) => {
-                    const resource = findResourceByFormat(selectedDataset, format)
-
-                    return resource ? (
-                      <a href={getResourceUrl(resource)} key={format} target="_blank" rel="noreferrer">
-                        {format.toUpperCase()}
-                      </a>
-                    ) : (
-                      <span className="is-disabled" key={format}>{format.toUpperCase()}</span>
-                    )
-                  })}
+                  {downloadFormats.map((format) => (
+                    <a
+                      href="#"
+                      key={format}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const title = getDatasetTitle(selectedDataset);
+                        if (format === "xls") exportToXLS(previewTable.columns, tableRows, title);
+                        if (format === "xml") exportToXML(previewTable.columns, tableRows, title);
+                        if (format === "json") exportToJSON(previewTable.columns, tableRows, title);
+                        if (format === "pdf") exportToPDF(previewTable.columns, tableRows, title);
+                      }}
+                    >
+                      {format.toUpperCase()}
+                    </a>
+                  ))}
                   <a href={jsonDetailUrl} target="_blank" rel="noreferrer">JSON Detail</a>
                 </div>
               </header>

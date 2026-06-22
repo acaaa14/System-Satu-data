@@ -289,8 +289,6 @@ class Dataset extends Controller
 
     }
 
-
-
     // =============================
     // DATASET DETAIL
     // =============================
@@ -304,7 +302,6 @@ class Dataset extends Controller
         return $this->response->setJSON($data);
 
     }
-
 
 
     // =============================
