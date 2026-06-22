@@ -9,7 +9,6 @@ import Topik from "./pages/Topik"
 import Search from "./pages/Search"
 import Dataset from "./pages/Dataset"
 import Login from "./pages/Login"
-import Admin from "./pages/Admin"
 import Footer from "./components/Footer"
 
 function getInitialView() {
@@ -17,10 +16,6 @@ function getInitialView() {
 
   if (path === "/login") {
     return "login"
-  }
-
-  if (path === "/admin") {
-    return "admin"
   }
 
   if (path === "/publikasi") {
@@ -97,10 +92,6 @@ function App() {
 
   if (viewMode === "login") {
     return <Login />
-  }
-
-  if (viewMode === "admin") {
-    return <Admin />
   }
 
   return (

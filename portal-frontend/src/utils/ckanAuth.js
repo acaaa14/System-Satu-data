@@ -4,6 +4,6 @@ const DEFAULT_CKAN_BASE_URL = import.meta.env.DEV
 
 export const CKAN_BASE_URL = import.meta.env.VITE_CKAN_BASE_URL || DEFAULT_CKAN_BASE_URL
 const sanitizedBaseUrl = CKAN_BASE_URL.replace(/\/+$/, "")
-const syncReturnUrl = `${window.location.origin}/login?sync=ckan`
 
-export const CKAN_LOGIN_URL = `${sanitizedBaseUrl}/user/login?came_from=${encodeURIComponent(syncReturnUrl)}`
+export const CKAN_DASHBOARD_URL = `${sanitizedBaseUrl}/dashboard`
+export const CKAN_LOGIN_URL = `${sanitizedBaseUrl}/user/login?came_from=${encodeURIComponent(CKAN_DASHBOARD_URL)}`

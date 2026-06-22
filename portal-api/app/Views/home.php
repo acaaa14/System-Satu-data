@@ -58,7 +58,7 @@
             <span class="feature-label">Application Layer</span>
             <h2 class="h4">CodeIgniter4</h2>
             <p class="mb-0 text-secondary">
-              Menangani routing, controller, integrasi API, autentikasi JWT, dan penyajian halaman web utama portal.
+              Menangani routing, controller, integrasi API CKAN, dan penyajian halaman web utama portal.
             </p>
           </article>
         </div>
@@ -99,8 +99,8 @@
             </div>
             <div class="col-md-6">
               <div class="feature-card">
-                <p class="mb-2"><code>POST /api/login</code></p>
-                <p class="text-secondary mb-0">Autentikasi untuk area admin menggunakan JWT.</p>
+                <p class="mb-2"><code>Login Admin CKAN</code></p>
+                <p class="text-secondary mb-0">Pengelolaan admin diarahkan langsung ke dashboard CKAN.</p>
               </div>
             </div>
           </div>

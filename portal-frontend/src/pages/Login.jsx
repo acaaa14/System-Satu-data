@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react"
-import axios from "axios"
-import API_BASE_URL from "../utils/api"
 import logoPortal from "../assets/img/logologin.png"
 import logoKominfo from "../assets/img/logokominfo.png"
 import cityLogo from "../assets/img/LogoKotaTangerang.png"
@@ -11,30 +9,7 @@ function Login() {
   const [statusMessage, setStatusMessage] = useState("Mengarahkan ke login CKAN...")
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const shouldSync = params.get("sync") === "ckan"
-
-    if (!shouldSync) {
-      window.location.href = CKAN_LOGIN_URL
-      return
-    }
-
-    setStatusMessage("Memverifikasi session CKAN dan menyinkronkan akses portal...")
-
-    axios
-      .post(`${API_BASE_URL}/api/auth/ckan/sync`)
-      .then((response) => {
-        if (response.data?.token) {
-          localStorage.setItem("token", response.data.token)
-          window.location.href = "/admin"
-          return
-        }
-
-        setStatusMessage("Session CKAN tidak berhasil disinkronkan. Silakan login ulang.")
-      })
-      .catch(() => {
-        setStatusMessage("Session CKAN belum valid. Silakan login ulang melalui CKAN.")
-      })
+    window.location.href = CKAN_LOGIN_URL
   }, [])
 
   return (
