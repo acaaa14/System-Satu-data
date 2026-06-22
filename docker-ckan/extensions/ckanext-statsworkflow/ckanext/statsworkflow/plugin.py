@@ -40,18 +40,18 @@ ALL_STATUSES = (
 )
 
 WORKFLOW_SEARCH_FILTERS = (
-    {'value': DRAFT, 'label': _('Draft')},
+    {'value': DRAFT, 'label': _('Revisian')},
     {'value': WAITING_VALIDATION, 'label': _('Waiting Validation')},
     {'value': WAITING_VERIFICATION, 'label': _('Waiting Verifikator')},
     {'value': PUBLISHED, 'label': _('Published')},
     {'value': 'private', 'label': _('Private')},
 )
-
 EDITOR_EDITABLE_STATUSES = (
     DRAFT,
     REVISION_FROM_VALIDATOR,
     REVISION_FROM_VERIFICATOR,
 )
+
 
 ROLE_CONFIG = {
     'validator': 'ckanext.statsworkflow.validators',
@@ -539,7 +539,7 @@ def statsworkflow_status_show(context, data_dict):
 def workflow_status_label(status):
     # Label ramah pengguna untuk status internal yang tersimpan di extras.
     return {
-        DRAFT: _('Draft'),
+        DRAFT: _('Revisian'),
         WAITING_VALIDATION: _('Menunggu Validasi'),
         REVISION_FROM_VALIDATOR: _('Revisi dari Validator'),
         WAITING_VERIFICATION: _('Menunggu Verifikasi'),

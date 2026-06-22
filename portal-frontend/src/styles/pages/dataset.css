@@ -1,0 +1,240 @@
+
+.dataset-list-page {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.dataset-list-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  background:
+    radial-gradient(circle at right top, rgba(66, 143, 255, 0.2), transparent 30%),
+    linear-gradient(120deg, #101773 0%, #010133 29%, #030439 61%, #213D9E 100%);
+  color: #eef2ff;
+  padding: 40px 0;
+}
+
+.dataset-list-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../../assets/img/Maskgroup.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+.dataset-list-hero__content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.dataset-list-hero h1 {
+  margin: 0 0 10px 0;
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  line-height: 1.1;
+  color: #fff;
+  text-align: center;
+}
+
+.dataset-list-breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.98rem;
+  color: rgba(240, 244, 255, 0.92);
+  margin-bottom: 30px;
+}
+
+.dataset-list-breadcrumb button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+}
+
+.dataset-list-breadcrumb button:hover {
+  text-decoration: underline;
+  color: #fff;
+}
+
+.dataset-list-breadcrumb strong {
+  color: #1ec3ff;
+  font-weight: normal;
+}
+
+.dataset-list-search-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.dataset-list-search {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 30px;
+  padding: 8px 24px;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dataset-list-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.dataset-list-search button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.dataset-list-content {
+  padding: 20px 0 60px;
+  background-color: white;
+  margin-top: -30px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  position: relative;
+}
+
+.dataset-list-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.dataset-list-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dataset-list-filter select {
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: white;
+  outline: none;
+}
+
+.dataset-list-summary {
+  background-color: #f8fafc;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.dataset-list-summary h2 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+}
+
+.dataset-list-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.dataset-list-item {
+  padding: 20px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dataset-list-item:last-child {
+  border-bottom: none;
+}
+
+.dataset-list-item__title {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: left;
+  padding: 0;
+  margin: 0 0 8px 0;
+  cursor: pointer;
+}
+
+.dataset-list-item__title:hover {
+  text-decoration: underline;
+}
+
+.dataset-list-item__org {
+  color: #4b5563;
+  margin: 0 0 16px 0;
+  font-size: 0.95rem;
+}
+
+.dataset-list-item__formats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dataset-format-badge {
+  background-color: #3b82f6;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.dataset-list-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+.dataset-list-pagination button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #4b5563;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dataset-list-pagination button:hover {
+  background-color: #f1f5f9;
+}
+
+.dataset-list-pagination button.is-active {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.dataset-list-empty {
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+}

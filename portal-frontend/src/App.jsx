@@ -7,6 +7,7 @@ import Organisasi from "./pages/Organisasi"
 import Publikasi from "./pages/Publikasi"
 import Topik from "./pages/Topik"
 import Search from "./pages/Search"
+import Dataset from "./pages/Dataset"
 import Login from "./pages/Login"
 import Admin from "./pages/Admin"
 import Footer from "./components/Footer"
@@ -24,6 +25,10 @@ function getInitialView() {
 
   if (path === "/publikasi") {
     return "publikasi"
+  }
+
+  if (path === "/dataset") {
+    return "dataset"
   }
 
   if (path === "/organisasi") {
@@ -56,10 +61,29 @@ function App() {
 
   const showDefault = () => navigate("/", "default")
   const showLogoView = () => setViewMode("logo")
+  const showDataset = () => navigate("/dataset", "dataset")
   const showOrganisasi = () => navigate("/organisasi", "organisasi")
+  
+  // Catatan: Fungsi ini ditambahkan agar saat card atau statistik diklik, 
+  // aplikasi mem-passing parameter nama dataset ke halaman organisasi
+  const showOrganisasiWithDataset = (dataset) => {
+    const slug = dataset?.name || dataset?.id;
+    if (slug) {
+      navigate(`/organisasi?dataset=${slug}`, "organisasi")
+    } else {
+      showOrganisasi()
+    }
+  }
   const showPublikasi = () => navigate("/publikasi", "publikasi")
-  const showTopik = () => {
-    window.location.href = "/topik"
+  
+  // Catatan: Fungsi ini diubah agar bisa menerima nama topik 
+  // dan membukanya secara otomatis di halaman Topik
+  const showTopik = (topicLabel) => {
+    if (typeof topicLabel === "string" && topicLabel) {
+      navigate(`/topik?topik=${encodeURIComponent(topicLabel)}`, "topik")
+    } else {
+      navigate("/topik", "topik")
+    }
   }
   const showSearch = (query = "") => {
     const params = new URLSearchParams()
@@ -85,6 +109,7 @@ function App() {
         currentView={viewMode}
         onLogoClick={showLogoView}
         onHomeClick={showDefault}
+        onDatasetClick={showDataset}
         onOrganisasiClick={showOrganisasi}
         onPublikasiClick={showPublikasi}
         onTopikClick={showTopik}
@@ -97,9 +122,11 @@ function App() {
             ? <Publikasi />
             : viewMode === "topik"
               ? <Topik />
+            : viewMode === "dataset"
+              ? <Dataset onHomeClick={showDefault} onDatasetClick={showOrganisasiWithDataset} />
             : viewMode === "search"
               ? <Search onHomeClick={showDefault} onOrganisasiClick={showOrganisasi} onPublikasiClick={showPublikasi} onSearchNavigate={showSearch} />
-              : <Home onOrganisasiClick={showOrganisasi} onPublikasiClick={showPublikasi} onSearchNavigate={showSearch} />}
+              : <Home onOrganisasiClick={showOrganisasi} onPublikasiClick={showPublikasi} onSearchNavigate={showSearch} onDatasetClick={showOrganisasiWithDataset} onDatasetPageClick={showDataset} onTopikClick={showTopik} />}
       {viewMode !== "logo" && <Footer />}
     </>
   )

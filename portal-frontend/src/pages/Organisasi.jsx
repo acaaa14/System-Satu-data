@@ -285,6 +285,21 @@ export default function Organisasi() {
         if (isMounted) {
           setOrganizations(normalized)
           setDatasets(datasetResult)
+
+          // Catatan: Membaca parameter URL (contoh: ?dataset=nama-dataset) 
+          // untuk membuka dataset tertentu secara otomatis saat halaman pertama kali dimuat.
+          const params = new URLSearchParams(window.location.search)
+          const datasetParam = params.get("dataset")
+          if (datasetParam) {
+            const targetDataset = datasetResult.find(d => d.name === datasetParam || d.id === datasetParam)
+            if (targetDataset) {
+              const targetOrg = normalized.find(o => datasetBelongsToOrganization(targetDataset, o))
+              if (targetOrg) {
+                setSelectedOrganization(targetOrg)
+                setSelectedDataset(targetDataset)
+              }
+            }
+          }
         }
       } catch {
         if (isMounted) {
@@ -397,6 +412,9 @@ export default function Organisasi() {
     setSelectedDataset(null)
     setDatasetSearch("")
     setActivePage(1)
+    if (window.location.search) {
+      window.history.replaceState({}, "", "/organisasi")
+    }
   }
 
   function backToOrganizationDetail() {
@@ -404,6 +422,9 @@ export default function Organisasi() {
     setPreviewRecords([])
     setPreviewFields([])
     setPreviewError("")
+    if (window.location.search) {
+      window.history.replaceState({}, "", "/organisasi")
+    }
   }
 
   // Membuka detail dataset tetap di halaman portal, bukan lompat ke CKAN langsung.

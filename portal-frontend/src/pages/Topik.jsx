@@ -323,11 +323,27 @@ export default function Topik() {
       .filter(Boolean)
   }, [organizations])
 
+  // Catatan: Membaca parameter URL (contoh: ?topik=Pemerintah) 
+  // untuk membuka daftar dataset topik tertentu secara otomatis
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const topicParam = params.get("topik")
+    
+    if (topicParam && topics.length > 0 && !selectedTopic) {
+      const targetTopic = topics.find(t => t.title.toLowerCase() === topicParam.toLowerCase() || t.id.toLowerCase() === topicParam.toLowerCase())
+      if (targetTopic) {
+        openTopic(targetTopic)
+      }
+    }
+  }, [topics, selectedTopic])
+
   async function openTopic(topic) {
     setSelectedTopic(topic)
 
     try {
-      const result = await fetchGroupDatasets(topic.name)
+      const groupName = topic.name || topic.id
+      if (!groupName) throw new Error("No group name")
+      const result = await fetchGroupDatasets(groupName)
 
       setDatasets(result)
     } catch {
@@ -417,7 +433,7 @@ export default function Topik() {
                   key={topic.id}
                   type="button"
                   className={
-                    selectedTopic.id === topic.id
+                    selectedTopic?.id === topic.id || selectedTopic?.title === topic.title
                       ? "topik-sidebar-item active"
                       : "topik-sidebar-item"
                   }
@@ -624,7 +640,19 @@ export default function Topik() {
               </button>
               <span>/</span>
 
-              <strong>Topik</strong>
+              <button
+                type="button"
+                className="topik-breadcrumb-link"
+                onClick={() => {
+                  if (window.location.search) {
+                    window.history.replaceState({}, "", "/topik")
+                  }
+                  setSelectedTopic(null)
+                  setDatasets([])
+                }}
+              >
+                <strong>Topik</strong>
+              </button>
 
             </p>
 

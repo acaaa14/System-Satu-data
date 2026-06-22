@@ -82,7 +82,7 @@ function HighlightedText({ text, query }) {
   ))
 }
 
-export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavigate }) {
+export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavigate, onDatasetClick, onDatasetPageClick, onTopikClick }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
   const [datasetsCount, setDatasetsCount] = useState(0)
@@ -386,20 +386,41 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
           <h2>Statistik Portal Data Kota Tangerang</h2>
 
           <div className="stats-bar">
-            {stats.map((item) => (
-              <article
-                key={item.label}
-                className={`stats-bar__item ${activeStatLabel === item.label ? "is-highlighted" : ""}`}
-              >
-                <span className="stats-bar__icon" aria-hidden="true">
-                  <img src={item.icon} alt="" />
-                </span>
-                <div>
-                  <strong>{item.value}</strong>
-                  <small>{item.label}</small>
-                </div>
-              </article>
-            ))}
+            {/* Catatan: Blok ini diubah menjadi interaktif (bisa diklik) 
+                agar mengarah ke halaman masing-masing seperti Organisasi, Dataset, dll. */}
+            {stats.map((item) => {
+              const clickHandlers = {
+                "Dataset": onDatasetPageClick,
+                "Organisasi": onOrganisasiClick,
+                "Publikasi": onPublikasiClick,
+                "Topik": onTopikClick
+              };
+              const onClickHandler = clickHandlers[item.label];
+              const isClickable = !!onClickHandler;
+              const Wrapper = isClickable ? "button" : "article";
+              
+              return (
+                <Wrapper
+                  type={isClickable ? "button" : undefined}
+                  key={item.label}
+                  className={`stats-bar__item ${activeStatLabel === item.label ? "is-highlighted" : ""} ${isClickable ? "stats-bar__item--clickable" : ""}`}
+                  onClick={() => {
+                    if (isClickable) {
+                      onClickHandler();
+                    }
+                  }}
+                  style={isClickable ? { cursor: "pointer", border: "none", background: "none", textAlign: "left", fontFamily: "inherit", padding: 0 } : {}}
+                >
+                  <span className="stats-bar__icon" aria-hidden="true">
+                    <img src={item.icon} alt="" />
+                  </span>
+                  <div>
+                    <strong>{item.value}</strong>
+                    <small>{item.label}</small>
+                  </div>
+                </Wrapper>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -414,16 +435,21 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
           </h2>
 
           <div className="topic-strip">
+            {/* Catatan: Diubah menjadi elemen button yang bisa diklik. 
+                Saat diklik akan memanggil fungsi onTopikClick dan mengirimkan nama topik ke URL. */}
             {topics.map((topic) => (
-              <article
+              <button
+                type="button"
                 key={topic.label}
                 className={`topic-strip__item ${activeTopicLabel === topic.label ? "is-highlighted" : ""}`}
+                onClick={() => onTopikClick?.(topic.label)}
+                style={{ cursor: "pointer", border: "none", background: "none", fontFamily: "inherit" }}
               >
                 <div className="topic-strip__icon" aria-hidden="true">
                   <img src={topic.image} alt="" />
                 </div>
                 <span>{topic.label}</span>
-              </article>
+              </button>
             ))}
           </div>
         </div>
@@ -445,12 +471,11 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
               const title = getDatasetTitle(dataset)
 
               return (
-                <a
+                <button
+                  type="button"
                   className={`dataset-card ${activeDatasetTitle === title ? "is-highlighted" : ""}`}
-                  href={getDatasetUrl(dataset)}
                   key={dataset.id || dataset.name || title}
-                  target="_blank"
-                  rel="noreferrer"
+                  onClick={() => onDatasetClick?.(dataset)}
                 >
                   <div className="dataset-card__thumb">
                     <img src={logoPortal} alt="" />
@@ -460,7 +485,7 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
                     <span>{dataset.author || "Admin"}</span>
                     <span>{formatDatasetDate(getDatasetDateValue(dataset))}</span>
                   </div>
-                </a>
+                </button>
               )
             })}
           </div>
