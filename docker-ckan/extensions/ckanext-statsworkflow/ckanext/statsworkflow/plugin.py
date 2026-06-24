@@ -199,6 +199,24 @@ def _has_workflow_role(context, data_dict, role):
     return _user_has_org_capacity(context, pkg.get('owner_org'), role)
 
 
+def _has_any_workflow_role(context, data_dict):
+    if _is_sysadmin(context):
+        return False
+
+    if any(_has_configured_role(context, role) for role in WORKFLOW_ROLES):
+        return True
+
+    try:
+        pkg = _package_show(context, _package_id(data_dict))
+    except (tk.ObjectNotFound, tk.ValidationError):
+        return False
+
+    return any(
+        _user_has_org_capacity(context, pkg.get('owner_org'), role)
+        for role in WORKFLOW_ROLES
+    )
+
+
 def _current_user_has_workflow_org_role(pkg_dict):
     if not pkg_dict:
         return False
@@ -572,6 +590,12 @@ def workflow_buttons(pkg_dict):
     buttons = []
 
     for slug, item in WORKFLOW_ACTIONS.items():
+        if slug == 'submit-validation' and _has_any_workflow_role(
+            context,
+            {'id': pkg_dict.get('id')},
+        ):
+            continue
+
         if status not in item['source_statuses'] and not (
             _is_sysadmin(context)
             and slug == 'publish'
@@ -643,6 +667,11 @@ def _can_update_package(context, data_dict):
 def statsworkflow_editor_auth(context, data_dict):
     if _is_sysadmin(context):
         return _auth_success()
+
+    if _has_any_workflow_role(context, data_dict):
+        return _auth_fail(
+            'Role validator/verifikator/publikator tidak boleh mengirim dataset ke validator'
+        )
 
     pkg = _package_show(context, _package_id(data_dict))
     status = _workflow_status(pkg)
