@@ -272,7 +272,7 @@ export default function Home({ onOrganisasiClick, onPublikasiClick, onSearchNavi
         title: organization.title,
         description: `${organization.packageCount} dataset tersedia`,
         action: () => {
-          onOrganisasiClick?.()
+          onOrganisasiClick?.(organization.name || organization.id)
           window.scrollTo({ top: 0, behavior: "smooth" })
         },
       }))

@@ -290,6 +290,8 @@ export default function Organisasi() {
           // untuk membuka dataset tertentu secara otomatis saat halaman pertama kali dimuat.
           const params = new URLSearchParams(window.location.search)
           const datasetParam = params.get("dataset")
+          const orgParam = params.get("org")
+
           if (datasetParam) {
             const targetDataset = datasetResult.find(d => d.name === datasetParam || d.id === datasetParam)
             if (targetDataset) {
@@ -298,6 +300,11 @@ export default function Organisasi() {
                 setSelectedOrganization(targetOrg)
                 setSelectedDataset(targetDataset)
               }
+            }
+          } else if (orgParam) {
+            const targetOrg = normalized.find(o => o.name === orgParam || o.id === orgParam)
+            if (targetOrg) {
+              setSelectedOrganization(targetOrg)
             }
           }
         }

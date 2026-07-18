@@ -447,7 +447,7 @@ class Dataset extends Controller
         $groupResults = $this->getPackageSearchResults($groupData);
         $data = $groupData;
 
-        if ($groupResults === []) {
+        if ($groupResults === [] && ($groupData['success'] ?? false) === true) {
             $searchData = $this->requestCkan(
                 "/package_search?rows=1000&q=" . urlencode($this->publicationGroup)
             );

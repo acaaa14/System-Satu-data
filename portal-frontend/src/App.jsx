@@ -57,7 +57,13 @@ function App() {
   const showDefault = () => navigate("/", "default")
   const showLogoView = () => setViewMode("logo")
   const showDataset = () => navigate("/dataset", "dataset")
-  const showOrganisasi = () => navigate("/organisasi", "organisasi")
+  const showOrganisasi = (orgSlug) => {
+    if (typeof orgSlug === "string" && orgSlug) {
+      navigate(`/organisasi?org=${orgSlug}`, "organisasi")
+    } else {
+      navigate("/organisasi", "organisasi")
+    }
+  }
   
   // Catatan: Fungsi ini ditambahkan agar saat card atau statistik diklik, 
   // aplikasi mem-passing parameter nama dataset ke halaman organisasi
@@ -116,7 +122,7 @@ function App() {
             : viewMode === "dataset"
               ? <Dataset onHomeClick={showDefault} onDatasetClick={showOrganisasiWithDataset} />
             : viewMode === "search"
-              ? <Search onHomeClick={showDefault} onOrganisasiClick={showOrganisasi} onPublikasiClick={showPublikasi} onSearchNavigate={showSearch} />
+              ? <Search onHomeClick={showDefault} onOrganisasiClick={showOrganisasi} onPublikasiClick={showPublikasi} onSearchNavigate={showSearch} onDatasetClick={showOrganisasiWithDataset} />
               : <Home onOrganisasiClick={showOrganisasi} onPublikasiClick={showPublikasi} onSearchNavigate={showSearch} onDatasetClick={showOrganisasiWithDataset} onDatasetPageClick={showDataset} onTopikClick={showTopik} />}
       {viewMode !== "logo" && <Footer />}
     </>

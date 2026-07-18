@@ -44,7 +44,7 @@ function HighlightedText({ text, query }) {
   ))
 }
 
-export default function Search({ onHomeClick, onOrganisasiClick, onPublikasiClick, onSearchNavigate }) {
+export default function Search({ onHomeClick, onOrganisasiClick, onPublikasiClick, onSearchNavigate, onDatasetClick }) {
   const [query, setQuery] = useState(getInitialQuery)
   const [sortBy, setSortBy] = useState("latest")
   const [pageFilter, setPageFilter] = useState("All")
@@ -131,12 +131,7 @@ export default function Search({ onHomeClick, onOrganisasiClick, onPublikasiClic
       image: logoPortal,
       date: dataset.metadata_modified || dataset.metadata_created || null,
       tags: [dataset.organization?.title, dataset.author, dataset.private ? "Private" : "Publik"].filter(Boolean),
-      action: () => {
-        const slug = dataset.name || dataset.id
-        if (slug) {
-          window.location.href = `http://localhost:5000/dataset/${slug}`
-        }
-      },
+      action: () => onDatasetClick?.(dataset),
     }))
 
     const publicationItems = publications
@@ -187,7 +182,7 @@ export default function Search({ onHomeClick, onOrganisasiClick, onPublikasiClic
         image: organization.image_display_url || organization.image_url || logoPortal,
         date: organization.metadata_modified || organization.created || null,
         tags: ["Organisasi", `${organization.package_count ?? 0} dataset`],
-        action: () => onOrganisasiClick?.(),
+        action: () => onOrganisasiClick?.(organization.name || organization.id),
       }))
 
     const topicItems = homeTopics
